@@ -4,14 +4,16 @@
     <title>Single Product</title>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="description" content="OneTech shop project">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="{{ asset('front/js/jquery-3.3.1.min.js') }}"></script>
-    <link rel="stylesheet" type="text/css" href="{{ asset('front/styles/bootstrap4/bootstrap.min.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{asset('front/styles/bootstrap4/bootstrap.min.css')}}">
     <link href="{{ asset('front/plugins/fontawesome-free-5.0.1/css/fontawesome-all.css') }}" rel="stylesheet" type="text/css">
-    <link rel="stylesheet" type="text/css" href="{{ asset('front/styles/product_styles.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('front/plugins/OwlCarousel2-2.2.1/owl.carousel.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('front/plugins/OwlCarousel2-2.2.1/owl.theme.default.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('front/plugins/OwlCarousel2-2.2.1/animate.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('front/plugins/slick-1.8.0/slick.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('front/styles/main_styles.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('front/styles/responsive.css') }}">
+
     <script src="https://unpkg.com/sweetalert2@7.18.0/dist/sweetalert2.all.js"></script>
 </head>
 
@@ -432,9 +434,9 @@
     </div>
 </div>
 
+<script src="{{ asset('front/js/jquery-3.3.1.min.js') }}"></script>
 <script src="{{ asset('front/styles/bootstrap4/popper.js') }}"></script>
-<script src="{{ asset('front/styles/bootstrap4/bootstrap.min.js') }}"></script>
-<script src="{{ asset('front/plugins/easing/easing.js') }}"></script>
+\<script src="{{ asset('front/plugins/easing/easing.js') }}"></script>
 <script src="{{ asset('front/js/product_custom.js') }}"></script>
 </body>
 

@@ -40,6 +40,16 @@ class PermissionsTableSeeder extends Seeder
             [
                 'permissions' => 'delete-comment'
             ],
+            [
+                'permissions' => 'view-superadmin'
+            ],
+            [
+                'permissions' => 'view-admin'
+            ],
+            [
+                'permissions' => 'view-admin-child'
+            ]
         ]);
     }
 }
+

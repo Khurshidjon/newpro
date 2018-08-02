@@ -57,9 +57,35 @@
                                 </ul>
                             </div>
                             <div class="top_bar_user">
-                                <div class="user_icon"><img src="images/user.svg" alt=""></div>
-                                <div><a href="#">Register</a></div>
-                                <div><a href="#">Sign in</a></div>
+                                @guest
+                                    <div>
+                                        <div class="user_icon"><img src="images/user.svg" alt=""></div>
+                                        <a href="{{ route('register') }}">Register</a>
+                                    </div>
+                                    <div>
+                                        <div class="user_icon"><img src="images/user.svg" alt=""></div>
+                                        <a href="{{ route('login') }}">Sign in</a>
+                                    </div>
+                                @else
+                                    <li class="dropdown">
+                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" v-pre>
+                                            {{ Auth::user()->name }} <span class="caret"></span>
+                                        </a>
+                                        <ul class="dropdown-menu">
+                                            <li>
+                                                <a href="{{ route('logout') }}"
+                                                   onclick="event.preventDefault();
+                                                     document.getElementById('logout-form').submit();">
+                                                    Logout
+                                                </a>
+
+                                                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                                    {{ csrf_field() }}
+                                                </form>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                @endguest
                             </div>
                         </div>
                     </div>
@@ -417,6 +443,42 @@
                 </div>
 
             </div>
+            <div class="w-50">
+                <h2>Comments</h2>
+                <div class="card">
+                    @foreach($comments as $comment)
+                    <div class="card-header">
+                        <h4>{{$comment->user->name}}</h4>
+                    </div>
+                    <div class="card-body">
+                        <p>{!! $comment->comments !!}</p>
+                        <span class="float-right text-info">{{ \Carbon\Carbon::createFromTimestamp(strtotime($comment->created_at))->diffForHumans() }}</span>
+                    </div>
+                    @endforeach
+                    <hr>
+                    @if(Auth::check())
+                    <div class="card-footer">
+                        <form action="{{route('product.comment', ['product' => $product])}}" method="post">
+                            {{ csrf_field() }}
+                            <div class="form-group">
+                                <label for="comment"></label>
+                                <textarea name="comment" class="form-control {{ $errors->has('comment') ? ' is-invalid' : '' }}" id="comment" rows="5" placeholder="mahsulot haqida fikringiz"></textarea>
+                                @if ($errors->has('comment'))
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $errors->first('comment') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                            <button type="submit" class="btn btn-outline">Send</button>
+                        </form>
+                    </div>
+                        @else
+                        <div class="card-footer">
+                            <h5 class="text-info">O'z fikringizni qoldirish uchun <a href="/login" class="text-danger">Login </a> bo'lishingiz kerak bo'ladi</h5>
+                        </div>
+                    @endif
+                </div>
+            </div>
         </div>
     </div>
 
@@ -549,14 +611,14 @@
 
                         <div class="owl-carousel owl-theme brands_slider">
 
-                            <div class="owl-item"><div class="brands_item d-flex flex-column justify-content-center"><img src="images/brands_1.jpg" alt=""></div></div>
-                            <div class="owl-item"><div class="brands_item d-flex flex-column justify-content-center"><img src="images/brands_2.jpg" alt=""></div></div>
-                            <div class="owl-item"><div class="brands_item d-flex flex-column justify-content-center"><img src="images/brands_3.jpg" alt=""></div></div>
-                            <div class="owl-item"><div class="brands_item d-flex flex-column justify-content-center"><img src="images/brands_4.jpg" alt=""></div></div>
-                            <div class="owl-item"><div class="brands_item d-flex flex-column justify-content-center"><img src="images/brands_5.jpg" alt=""></div></div>
-                            <div class="owl-item"><div class="brands_item d-flex flex-column justify-content-center"><img src="images/brands_6.jpg" alt=""></div></div>
-                            <div class="owl-item"><div class="brands_item d-flex flex-column justify-content-center"><img src="images/brands_7.jpg" alt=""></div></div>
-                            <div class="owl-item"><div class="brands_item d-flex flex-column justify-content-center"><img src="images/brands_8.jpg" alt=""></div></div>
+                            <div class="owl-item"><div class="brands_item d-flex flex-column justify-content-center"><img src="{{ asset('images/brands_1.jpg') }}" alt=""></div></div>
+                            <div class="owl-item"><div class="brands_item d-flex flex-column justify-content-center"><img src="{{ asset('images/brands_2.jpg') }}" alt=""></div></div>
+                            <div class="owl-item"><div class="brands_item d-flex flex-column justify-content-center"><img src="{{ asset('images/brands_3.jpg') }}" alt=""></div></div>
+                            <div class="owl-item"><div class="brands_item d-flex flex-column justify-content-center"><img src="{{ asset('images/brands_4.jpg') }}" alt=""></div></div>
+                            <div class="owl-item"><div class="brands_item d-flex flex-column justify-content-center"><img src="{{ asset('images/brands_5.jpg') }}" alt=""></div></div>
+                            <div class="owl-item"><div class="brands_item d-flex flex-column justify-content-center"><img src="{{ asset('images/brands_6.jpg') }}" alt=""></div></div>
+                            <div class="owl-item"><div class="brands_item d-flex flex-column justify-content-center"><img src="{{ asset('images/brands_7.jpg') }}" alt=""></div></div>
+                            <div class="owl-item"><div class="brands_item d-flex flex-column justify-content-center"><img src="{{ asset('images/brands_8.jpg') }}" alt=""></div></div>
 
                         </div>
 

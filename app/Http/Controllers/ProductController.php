@@ -11,6 +11,7 @@ use Cviebrock\EloquentSluggable\Services\SlugService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Comment;
 use RealRashid\SweetAlert\Facades\Alert;
 use Intervention\Image\Facades\Image;
 class ProductController extends Controller
@@ -24,7 +25,7 @@ class ProductController extends Controller
     {
         $products = Product::latest()->paginate(20);
         $categories = Category::all();
-        $randoms = Product::where('slug', '!=', $products)->get()->random(2);
+        $randoms = Product::where('slug', '!=', $products)->get()->random(1);
         $news = Product::latest()->paginate(6);
         return view('user.index', ['products' => $products, 'randoms' => $randoms, 'news' => $news, 'categories' => $categories]);
     }
@@ -112,12 +113,12 @@ class ProductController extends Controller
                 return redirect()->route('product.index');
             }
 
-        } else {
+            } else {
 
             alert()->error('Oops...', 'Something went wrong!');
             return redirect()->route('add.product');
 
-        }
+            }
 
     }
 
@@ -130,7 +131,8 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        return view('user.show', ['product' => $product]);
+        $comments = Comment::latest()->paginate();
+        return view('user.show', ['product' => $product, 'comments' => $comments]);
     }
 
     /**
@@ -175,5 +177,22 @@ class ProductController extends Controller
         $result = DB::table('products')->where('title', 'LIKE', '%'. $request->input('search').'%')->get();
 
         return response()->json($result);
+    }
+    public function commentCreate(Request $request, Product $product)
+    {
+        $request->validate([
+            'comment' => 'required'
+        ]);
+        $comment = new Comment();
+        $comment->comments = $request->comment;
+        $comment->product_id = $product->id;
+        $comment->user_id = Auth::id();
+        $comment->save();
+        if($comment)
+        {
+            alert('success', 'E\'tiboringiz uchun rahmat', 'top-right');
+            return redirect()->back();
+        }
+
     }
 }

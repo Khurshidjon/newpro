@@ -164,16 +164,17 @@
                                         <div class="featured_slider_item">
                                             <div class="border_active"></div>
                                             <div class="product_item discount d-flex flex-column align-items-center justify-content-center text-center">
-                                                <div class="product_image d-flex flex-column align-items-center justify-content-center"><img src="{{ asset('storage/'.$product->images[0]->filename) }}" alt=""></div>
+                                                <a href="{{ route('product.show', ['product'=>$product]) }}"><div class="product_image d-flex flex-column align-items-center justify-content-center"><img src="{{ asset('storage/'.$product->images[0]->filename) }}" alt=""></div>
                                                 <div class="product_content">
                                                     <div class="product_price discount"><span>{{ $product->category->categories}}</span></div>
-                                                    <div class="product_name"><div><a href="{{ route('product.show', ['product'=>$product]) }}">{{ $product->title }}</a></div></div>
+                                                    <div class="product_name"><div>{{ $product->title }}</div></div>
                                                     <div class="product_extras">
                                                         <div class="product_color">
 
                                                         </div>
                                                     </div>
                                                 </div>
+                                                </a>
                                                 <ul class="product_marks">
                                                     <li class="product_mark product_discount">danger</li>
                                                     <li class="product_mark product_new"></li>
