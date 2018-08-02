@@ -447,12 +447,10 @@
                                                     $('#usersList').html(user);
                                                 });
                                             },
-                                            fail:function (message) {
-                                                if (message.status === 404){
-                                                    var user = '';
-                                                    user = user + "<p>Whoops not found result</p>";
+                                            error:function (message) {
+                                                    var user;
+                                                    user = "<p>Whoops not found result</p>";
                                                     $('#result').html(user)
-                                                }
                                             }
                                         });
                                     });

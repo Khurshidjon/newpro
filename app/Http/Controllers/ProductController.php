@@ -131,7 +131,7 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        $comments = Comment::latest()->paginate();
+        $comments = Comment::all();
         return view('user.show', ['product' => $product, 'comments' => $comments]);
     }
 
@@ -178,6 +178,11 @@ class ProductController extends Controller
 
         return response()->json($result);
     }
+    public function comments()
+    {
+        $comments = DB::table('comments')->join('users', 'comments.user_id', '=', 'users.id')->select('comments', 'product_id', 'comments.created_at', 'users.name')->get();
+        return response()->json($comments);
+    }
     public function commentCreate(Request $request, Product $product)
     {
         $request->validate([
@@ -188,11 +193,7 @@ class ProductController extends Controller
         $comment->product_id = $product->id;
         $comment->user_id = Auth::id();
         $comment->save();
-        if($comment)
-        {
-            alert('success', 'E\'tiboringiz uchun rahmat', 'top-right');
-            return redirect()->back();
-        }
+        return response()->json($comment);
 
     }
 }

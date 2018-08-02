@@ -19,6 +19,7 @@ Route::get('/add/product', 'ProductController@create')->name('add.product')->mid
 Route::post('/add/product', 'ProductController@store')->name('create.product');
 Route::post('/product/search', 'ProductController@search')->name('product.search');
 Route::post('/product/comment/{product}', 'ProductController@commentCreate')->name('product.comment');
+Route::get('/product/comment/{product}', 'ProductController@comments')->name('show.comments');
 
 Route::get('/adminka', 'AdminController@isAdmin')->name('admin.index');
 Route::get('/adminka/login/page', 'AdminController@loginAdmin')->name('admin.login');

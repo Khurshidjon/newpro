@@ -5,7 +5,9 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="description" content="OneTech shop project">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="{{ asset('front/js/jquery-3.3.1.min.js') }}"></script>
     <link rel="stylesheet" type="text/css" href="{{ asset('front/styles/bootstrap4/bootstrap.min.css') }}">
     <link href="{{ asset('front/plugins/fontawesome-free-5.0.1/css/fontawesome-all.css') }}" rel="stylesheet" type="text/css">
     <link rel="stylesheet" type="text/css" href="{{ asset('front/plugins/OwlCarousel2-2.2.1/owl.carousel.css') }}">
@@ -432,6 +434,8 @@
                         <h4 class="text-dark product_text"><p><b class="text-info">Mahsulot haqida: </b><br>{{ $product->details }}</p></h4>
                         <hr>
                         <h4 class="text-dark"><p><b class="text-info">Mahsulot xavfi: </b><br>{{ $product->danger }}</p></h4>
+                        <hr>
+                        <h4 class="text-dark"><p><b class="text-info">Mahsulot aybi: </b><br>{{ $product->danger_type }}</p></h4>
 
                         <div class="order_info d-flex flex-row">
                             <h5 class="text-dark"><span><strong class="text-info">Mahsulot kiritilgan sana: </strong></span>{{ date_format($product->created_at, 'd.m.Y') }}</h5>
@@ -445,38 +449,105 @@
             </div>
             <div class="w-50">
                 <h2>Comments</h2>
-                <div class="card">
-                    @foreach($comments as $comment)
-                    <div class="card-header">
-                        <h4>{{$comment->user->name}}</h4>
-                    </div>
-                    <div class="card-body">
-                        <p>{!! $comment->comments !!}</p>
-                        <span class="float-right text-info">{{ \Carbon\Carbon::createFromTimestamp(strtotime($comment->created_at))->diffForHumans() }}</span>
-                    </div>
-                    @endforeach
+                <div class="card" id="comments">
                     <hr>
-                    @if(Auth::check())
+                </div>
+
                     <div class="card-footer">
+                        @if(Auth::check())
                         <form action="{{route('product.comment', ['product' => $product])}}" method="post">
                             {{ csrf_field() }}
                             <div class="form-group">
                                 <label for="comment"></label>
-                                <textarea name="comment" class="form-control {{ $errors->has('comment') ? ' is-invalid' : '' }}" id="comment" rows="5" placeholder="mahsulot haqida fikringiz"></textarea>
+                                <textarea id="comment" name="comment" class="form-control {{ $errors->has('comment') ? ' is-invalid' : '' }}" rows="5" placeholder="mahsulot haqida fikringiz"></textarea>
                                 @if ($errors->has('comment'))
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $errors->first('comment') }}</strong>
                                     </span>
                                 @endif
                             </div>
-                            <button type="submit" class="btn btn-outline">Send</button>
+                            <button type="submit" id="addComment" class="btn btn-outline">Send</button>
                         </form>
-                    </div>
+
                         @else
-                        <div class="card-footer">
-                            <h5 class="text-info">O'z fikringizni qoldirish uchun <a href="/login" class="text-danger">Login </a> bo'lishingiz kerak bo'ladi</h5>
-                        </div>
-                    @endif
+                            <div class="card-footer">
+                                <h5 class="text-info">O'z fikringizni qoldirish uchun <a href="/login" class="text-danger">Login </a> bo'lishingiz kerak bo'ladi</h5>
+                            </div>
+                        @endif
+                        <script>
+                            var url = '<?php echo route('show.comments', [$product])?>';
+                            $(function () {
+                                var page = 1;
+                                function getDataInfo()
+                                {
+                                    $.ajaxSetup({
+                                        headers: {
+                                            'X-CSRF-TOKEN': $("meta[name='csrf-token']").attr('content')
+                                        }
+                                    });
+                                    $.ajax({
+                                        dataType: 'json',
+                                        method: 'GET',
+                                        url: url,
+                                        data: {
+                                            page: page,
+                                        },
+                                        success: function (data) {
+                                            console.log(data)
+                                            writeData(data);
+                                        },
+                                    });
+                                }
+                                getDataInfo();
+                                function writeData(data) {
+                                    var user = '';
+                                    $.each(data, function (key, value) {
+                                        if(value.product_id == '<?php echo $product->id;?>'){
+                                            user = user + "<div class='card'>";
+                                            user = user + "<div class='card-body'><h5>" + value.name + "</h5><hr></div>";
+                                            user = user + "<div class='card-body'><p>" + value.comments  + '</p></div>';
+                                            user = user + '<div class="card-footer"><span class="float-right text-info">'  +  value.created_at + '</span></div>';
+                                            user = user + "</div>";
+                                            $('#comments').html(user);
+                                        }
+                                    });
+                                }
+
+                                $('#addComment').on('click', function(event){
+                                    event.preventDefault();
+
+                                     var value = $('#comment').val();
+                                     var commentUrl = '<?php echo route('product.comment', [$product])?>';
+                                    $.ajaxSetup({
+                                        headers: {
+                                            'X-CSRF-TOKEN': $("meta[name='csrf-token']").attr('content')
+                                        }
+                                    });
+                                    $.ajax({
+
+                                        type : 'post',
+                                        dataType: 'JSON',
+                                        url : commentUrl,
+                                        data:{
+                                            'comment':value
+                                        },
+                                        success:function(){
+                                            $('#comments').load(commentUrl);
+                                            $('#comment').val('');
+                                            getDataInfo();
+                                            console.log()
+                                        },
+                                        error:function (message) {
+                                            var user = '';
+                                            user = user + "<p>Whoops not found result</p>";
+                                            $('#result').html(user)
+                                        }
+                                    });
+                                });
+
+                            });
+                        </script>
+                    </div>
                 </div>
             </div>
         </div>
@@ -505,7 +576,7 @@
                             <!-- Recently Viewed Item -->
                             <div class="owl-item">
                                 <div class="viewed_item discount d-flex flex-column align-items-center justify-content-center text-center">
-                                    <div class="viewed_image"><img src="images/view_1.jpg" alt=""></div>
+                                    <div class="viewed_image"><img src="{{ asset('images/view_1.jpg') }}" alt=""></div>
                                     <div class="viewed_content text-center">
                                         <div class="viewed_price">$225<span>$300</span></div>
                                         <div class="viewed_name"><a href="#">Beoplay H7</a></div>
@@ -520,7 +591,7 @@
                             <!-- Recently Viewed Item -->
                             <div class="owl-item">
                                 <div class="viewed_item d-flex flex-column align-items-center justify-content-center text-center">
-                                    <div class="viewed_image"><img src="images/view_2.jpg" alt=""></div>
+                                    <div class="viewed_image"><img src="{{ asset('images/view_2.jpg') }}" alt=""></div>
                                     <div class="viewed_content text-center">
                                         <div class="viewed_price">$379</div>
                                         <div class="viewed_name"><a href="#">LUNA Smartphone</a></div>
@@ -535,7 +606,7 @@
                             <!-- Recently Viewed Item -->
                             <div class="owl-item">
                                 <div class="viewed_item d-flex flex-column align-items-center justify-content-center text-center">
-                                    <div class="viewed_image"><img src="images/view_3.jpg" alt=""></div>
+                                    <div class="viewed_image"><img src="{{ asset('images/view_3.jpg') }}" alt=""></div>
                                     <div class="viewed_content text-center">
                                         <div class="viewed_price">$225</div>
                                         <div class="viewed_name"><a href="#">Samsung J730F...</a></div>
@@ -550,7 +621,7 @@
                             <!-- Recently Viewed Item -->
                             <div class="owl-item">
                                 <div class="viewed_item is_new d-flex flex-column align-items-center justify-content-center text-center">
-                                    <div class="viewed_image"><img src="images/view_4.jpg" alt=""></div>
+                                    <div class="viewed_image"><img src="{{ asset('images/view_4.jpg') }}" alt=""></div>
                                     <div class="viewed_content text-center">
                                         <div class="viewed_price">$379</div>
                                         <div class="viewed_name"><a href="#">Huawei MediaPad...</a></div>
@@ -565,7 +636,7 @@
                             <!-- Recently Viewed Item -->
                             <div class="owl-item">
                                 <div class="viewed_item discount d-flex flex-column align-items-center justify-content-center text-center">
-                                    <div class="viewed_image"><img src="images/view_5.jpg" alt=""></div>
+                                    <div class="viewed_image"><img src="{{ asset('images/view_5.jpg') }}" alt=""></div>
                                     <div class="viewed_content text-center">
                                         <div class="viewed_price">$225<span>$300</span></div>
                                         <div class="viewed_name"><a href="#">Sony PS4 Slim</a></div>
@@ -580,7 +651,7 @@
                             <!-- Recently Viewed Item -->
                             <div class="owl-item">
                                 <div class="viewed_item d-flex flex-column align-items-center justify-content-center text-center">
-                                    <div class="viewed_image"><img src="images/view_6.jpg" alt=""></div>
+                                    <div class="viewed_image"><img src="{{ asset('images/view_6.jpg') }}" alt=""></div>
                                     <div class="viewed_content text-center">
                                         <div class="viewed_price">$375</div>
                                         <div class="viewed_name"><a href="#">Speedlink...</a></div>
@@ -761,7 +832,6 @@
     </div>
 </div>
 
-<script src="{{ asset('front/js/jquery-3.3.1.min.js') }}"></script>
 <script src="{{ asset('front/styles/bootstrap4/popper.js') }}"></script>
 <script src="{{ asset('front/styles/bootstrap4/bootstrap.min.js') }}"></script>
 <script src="{{ asset('front/plugins/greensock/TweenMax.min.js') }}"></script>
