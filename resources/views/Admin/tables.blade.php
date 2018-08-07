@@ -1,5 +1,8 @@
 @extends('layouts.adminMaster')
 @section('adminContent')
+{{--
+    @if(Auth::user()->can('lists', \App\User::class))
+--}}
 <div id="wrapper">
 
     <!-- Navigation -->
@@ -11,7 +14,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="index.html">SB Admin v2.0</a>
+            <a class="navbar-brand" href="{{ route('admin.index') }}">Admin: {{ Auth::user()->name }}</a>
         </div>
         <!-- /.navbar-header -->
 
@@ -240,7 +243,7 @@
                         <!-- /input-group -->
                     </li>
                     <li>
-                        <a href="index.html"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
+                        <a href="{{ route('admin.index') }}"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
                     </li>
                     <li>
                         <a href="#"><i class="fa fa-bar-chart-o fa-fw"></i> Charts<span class="fa arrow"></span></a>
@@ -255,7 +258,7 @@
                         <!-- /.nav-second-level -->
                     </li>
                     <li>
-                        <a href="tables.html"><i class="fa fa-table fa-fw"></i> Tables</a>
+                        <a href="{{ route('admin.lists') }}"><i class="fa fa-table fa-fw"></i> Tables</a>
                     </li>
                     <li>
                         <a href="forms.html"><i class="fa fa-edit fa-fw"></i> Forms</a>
@@ -321,7 +324,7 @@
                                 <a href="blank.html">Blank Page</a>
                             </li>
                             <li>
-                                <a href="login.html">Login Page</a>
+                                <a href="{{ route('admin.login') }}">Login Page</a>
                             </li>
                         </ul>
                         <!-- /.nav-second-level -->
@@ -332,7 +335,6 @@
         </div>
         <!-- /.navbar-static-side -->
     </nav>
-
     <div id="page-wrapper">
         <div class="row">
             <div class="col-lg-12">
@@ -340,18 +342,25 @@
             </div>
         </div>
         <ul class="nav nav-tabs" role="tablist">
-            <li class="nav-item">
-                <a class="nav-link active" data-toggle="tab" href="#home">Users</a>
+            <li class="nav-item active">
+                <a class="nav-link" data-toggle="tab" href="#home">Users</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" href="#menu1">Admin</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" href="#menu2">Child of Admin</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" href="#menu3">Super admin</a>
-            </li>
+            @foreach(Auth::user()->user_permissions as $permission)
+                    @if($permission->permissions === 'view-admin')
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#menu1">Admin</a>
+                        </li>
+
+                    @elseif($permission->permissions === 'view-admin-child')
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#menu2">Child of Admin</a>
+                        </li>
+                    @elseif($permission->permissions === 'view-superadmin')
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#menu3">Super admin</a>
+                        </li>
+                    @endif
+            @endforeach
         </ul>
         <div class="tab-content">
             <div id="home" class="container tab-pane active"><br>
@@ -363,27 +372,27 @@
                     <!-- /.panel-heading -->
                     <div class="panel-body">
                         <form action="" class="form-group">
-                            <input type="text" name="search" class="form-control" placeholder="Search live" id="search">
+                            <input type="text" name="search" class="form-control" placeholder="Search live" id="search" autocomplete="off">
                         </form>
-                        <div class="table-responsive">
-                            <table class="table table-bordered"  style="font-size: 20px">
+                        <div class="table-responsive" id="myDiv">
+                            <table class="table table-bordered" id="myTable" style="font-size: 20px">
                                 <thead>
                                 <tr>
                                     <th>#</th>
                                     <th>Full Name</th>
                                     <th>E-mail</th>
+                                    <th colspan="3">Action</th>
                                 </tr>
                                 </thead>
                                 <tbody id="usersList">
 
                                 </tbody>
                             </table>
-                            <p id="result"></p>
+                            <div id="result"></div>
                             <script>
                                 var url = '<?php echo route('users.list')?>';
+                                var page = 1;
                                 $(function () {
-                                    var page = 1;
-
                                     function getDataInfo()
 
                                     {
@@ -404,16 +413,17 @@
                                             },
                                         });
                                     }
-
                                     getDataInfo();
                                     function writeData(data) {
                                         var id = 1;
                                         var user = '';
+                                        var access = '';
                                         $.each(data, function (key, value) {
-                                            user = user + "<tr>'>";
+                                            user = user + "<tr>";
                                             user = user + "<td>" + id++ + "</td>";
                                             user = user + "<td>" + value.name + "</td>";
                                             user = user + "<td>" + value.email+ "</td>";
+                                            user = user + "<td><p style='font-size: 15px;' class='badge'>" + value.roles + "</p></td>";
                                             user = user + "</tr>";
                                             $('#usersList').html(user);
                                         });
@@ -438,20 +448,86 @@
                                             success:function(data){
                                                 var id = 1;
                                                 var user = '';
+                                                var access = '';
                                                 $.each(data, function (key, value) {
-                                                    user = user + "<tr>'>";
+                                                    user = user + "<tr>";
                                                     user = user + "<td>" + id++ + "</td>";
                                                     user = user + "<td>" + value.name + "</td>";
                                                     user = user + "<td>" + value.email+ "</td>";
+                                                    user = user + '<td>';
+                                                    user = user + '<a href="user/show/'+value.id+'" type="button" data-toggle="collapse" data-target="#demo_'+ value.id +'" class="btn btn-info">view</a>';
+                                                    user = user + '<button type="button" data-toggle="collapse" data-target="#edit_'+ value.id +'" class="btn btn-success">edit</button>';
+                                                    user = user + '<button class="btn btn-danger">delete</button>';
+                                                    user = user + '</td>';
                                                     user = user + "</tr>";
+                                                    access = access + '<div class="collapse" id="edit_'+ value.id +'" >';
+                                                    access = access + '<form method="post" class="list-group" id="form_'+ value.id +'">';
+                                                    access = access + '<input type="hidden" name="_token" value="{{ csrf_token() }}">';
+                                                    access = access + '<input type="hidden" id="id_'+value.id+'" name="id" value="' + value.id + '">';
+                                                    access = access + '<div class="form-group">';
+                                                    access = access + '<input type="text" class="form-control" id="name_' + value.id +'" name="name" value="' + value.name + '">';
+                                                    access = access + '</div>';
+                                                    access = access + '<div class="form-group">';
+                                                    access = access + '<input type="email" class="form-control" id="email_' + value.id + '" name="email" value="' + value.email + '">';
+                                                    access = access + '</div>';
+                                                    access = access + '<div class="form-group">';
+                                                    access = access + '<input type="password" class="form-control" id="old_password_' + value.id +'" name="old_password" placeholder="Current password (optional)">';
+                                                    access = access + '</div>';
+                                                    access = access + '<div class="form-group">';
+                                                    access = access + '<input type="password" class="form-control" id="new_password_' + value.id +'" name="new_password" placeholder="Update password (optional)">';
+                                                    access = access + '</div>';
+                                                    access = access + '<div class="form-group">';
+                                                    access = access + '<input type="password" class="form-control" id="password_confirm_'+ value.id +'" name="password_confirmation" placeholder="Confirm password (optional)">';
+                                                    access = access + '</div>';
+                                                    access = access + '<button type="submit" id="button_'+ value.id +'" class="form-control btn btn-info">update</button>';
+                                                    access = access + '</form>';
+                                                    access = access + '<hr>';
+                                                    access = access + '</div>';
                                                     $('#usersList').html(user);
+                                                    $('#result').html(access);
+                                                $('#button_'+ value.id).on('click', function (e) {
+                                                    e.preventDefault();
+                                                    var name = $('#name_'+value.id).val();
+                                                    var email = $('#email_'+value.id).val();
+                                                    var old_password = $('#old_password_'+value.id).val();
+                                                    var new_password = $('#new_password_'+value.id).val();
+                                                    var password_confirm = $('#password_confirm_'+value.id).val();
+                                                    var id = $('#id_'+value.id).val();
+                                                    $.ajaxSetup({
+                                                        headers: {
+                                                            'X-CSRF-TOKEN': $("meta[name='csrf-token']").attr('content')
+                                                        }
+                                                    });
+                                                    $.ajax({
+                                                        cache: false,
+                                                        url: '{{ route('users.update') }}',
+                                                        type: 'post',
+                                                        dataType:'json',
+                                                        data: {
+                                                            id: id,
+                                                            name: name,
+                                                            email: email,
+                                                            old_password: old_password,
+                                                            new_password: new_password,
+                                                            password_confirm: password_confirm
+                                                        },
+                                                        success: {function(data){
+                                                                $("#myTable").load('<?php echo route('users.list')?>');
+/*
+                                                                location.reload()
+*/
+                                                                console.log()
+                                                            }
+                                                        }
+                                                    })
+
+                                                })
                                                 });
                                             },
-                                            error:function (message) {
-                                                    var user;
-                                                    user = "<p>Whoops not found result</p>";
-                                                    $('#result').html(user)
-                                            }
+                                            fail:function(jqXHR, ajaxOptions, thrownError)
+                                            {
+                                                alert('No response from server');
+                                            },
                                         });
                                     });
                                 });
@@ -484,20 +560,24 @@
                     <tbody>
                     <?php $i = 1;?>
                     @foreach($users as $user)
-                        @foreach($user->user_roles as $role)
-                            @if($role->id == 2)
+                            @foreach($user->user_roles as $role)
+                            @foreach($user->user_permissions as $permission)
+
+                            @if($role->roles === 'admin')
                                 <tr>
                                     <td>{{ $i++ }}</td>
 
                                     <td class="text-success">{{ $user->name }}</td>
                                     <td>
                                         @foreach($user->user_roles as $role)
+                                            @can('viewRole', Auth::user())
                                             <form action="{{ route('admin.detachRole', ['user'=>$user, 'role' => $role]) }}" class="d-block" method="post">
                                                 {{csrf_field()}}
                                                 <p class="text-info">{{ $role->roles }}
                                                     <button type="submit" style="border: none; background-color: white"><i class="fa fa-minus-circle text-danger"></i></button>
                                                 </p>
                                             </form>
+                                            @endcan
                                         @endforeach
                                     </td>
                                     <td>
@@ -533,6 +613,7 @@
                                 </tr>
                             @endif
                         @endforeach
+                        @endforeach
                     @endforeach
                     </tbody>
                 </table>
@@ -543,7 +624,9 @@
     </div>
 
 </div>
-            <div id="menu2" class="container tab-pane fade"><br>
+
+
+                <div id="menu2" class="container tab-pane fade"><br>
 
                 <div class="panel panel-default">
                     <div class="panel-heading">
@@ -566,8 +649,10 @@
                                 <tbody>
                                 <?php $i = 1;?>
                                 @foreach($users as $user)
-                                    @foreach($user->user_roles as $role)
-                                        @if($role->id == 3)
+                                    @can('view', $user)
+                                        @foreach($user->user_roles as $role)
+                                    @foreach($user->user_permissions as $permission)
+                                        @if($role->roles === 'admin-child')
                                             <tr>
                                                 <td>{{ $i++ }}</td>
 
@@ -615,6 +700,8 @@
                                             </tr>
                                         @endif
                                     @endforeach
+                                    @endforeach
+                                    @endcan
                                 @endforeach
                                 </tbody>
                             </table>
@@ -625,6 +712,7 @@
                 </div>
 
             </div>
+
             <div id="menu3" class="container tab-pane fade"><br>
 
                 <div class="panel panel-default">
@@ -648,8 +736,8 @@
                                 <tbody>
                                 <?php $i = 1;?>
                                 @foreach($users as $user)
-                                    @foreach($user->user_roles as $role)
-                                        @if($role->id == 1)
+                                    @foreach($user->user_permissions as $permission)
+                                        @if($permission->permissions === 'view-superadmin')
                                             <tr>
                                                 <td>{{ $i++ }}</td>
 
@@ -710,4 +798,8 @@
         </div>
     </div>
 </div>
+{{--
+    @endif
+--}}
+
 @endsection

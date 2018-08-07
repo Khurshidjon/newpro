@@ -181,6 +181,7 @@ class ProductController extends Controller
     public function comments()
     {
         $comments = DB::table('comments')->join('users', 'comments.user_id', '=', 'users.id')->select('comments', 'product_id', 'comments.created_at', 'users.name')->get();
+
         return response()->json($comments);
     }
     public function commentCreate(Request $request, Product $product)

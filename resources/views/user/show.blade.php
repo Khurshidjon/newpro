@@ -17,7 +17,13 @@
     <link rel="stylesheet" type="text/css" href="{{ asset('front/styles/product_responsive.css') }}">
 
     <script src="https://unpkg.com/sweetalert2@7.18.0/dist/sweetalert2.all.js"></script>
-
+    <style type="text/css">
+        .ajax-load{
+            background: #e1e1e1;
+            padding: 10px 0px;
+            width: 100%;
+        }
+    </style>
 
 </head>
 
@@ -447,12 +453,14 @@
                 </div>
 
             </div>
-            <div class="w-50">
+            <div class="w-50" >
                 <h2>Comments</h2>
                 <div class="card" id="comments">
                     <hr>
                 </div>
-
+                <div class="ajax-load text-center" style="display:none">
+                    <p><img src="http://demo.itsolutionstuff.com/plugin/loader.gif">Loading More post</p>
+                </div>
                     <div class="card-footer">
                         @if(Auth::check())
                         <form action="{{route('product.comment', ['product' => $product])}}" method="post">
@@ -503,13 +511,13 @@
                                     var user = '';
                                     $.each(data, function (key, value) {
                                         if(value.product_id == '<?php echo $product->id;?>'){
-                                            user = user + "<div class='card'>";
-                                            user = user + "<div class='card-body'><h5>" + value.name + "</h5><hr></div>";
-                                            user = user + "<div class='card-body'><p>" + value.comments  + '</p></div>';
-                                            user = user + '<div class="card-footer"><span class="float-right text-info">'  +  value.created_at + '</span></div>';
-                                            user = user + "</div>";
-                                            $('#comments').html(user);
-                                        }
+                                                user = user + "<div class='card'>";
+                                                user = user + "<div class='card-body'><h5>" + value.name + "</h5><hr></div>";
+                                                user = user + "<div class='card-body'><p>" + value.comments + '</p></div>';
+                                                user = user + '<div class="card-footer"><span class="float-right text-info">' + value.created_at + '</span></div>';
+                                                user = user + "</div>";
+                                                $('#comments').html(user);
+                                            }
                                     });
                                 }
 
@@ -531,16 +539,14 @@
                                         data:{
                                             'comment':value
                                         },
+                                        beforeSend: function(){
+                                            $('#comments').html("<img src='{{ asset('aaaa.gif') }}' />")
+                                        },
                                         success:function(){
-                                            $('#comments').load(commentUrl);
                                             $('#comment').val('');
+                                            $('#comments').load(commentUrl);
                                             getDataInfo();
                                             console.log()
-                                        },
-                                        error:function (message) {
-                                            var user = '';
-                                            user = user + "<p>Whoops not found result</p>";
-                                            $('#result').html(user)
                                         }
                                     });
                                 });
@@ -830,7 +836,6 @@
             </div>
         </div>
     </div>
-</div>
 
 <script src="{{ asset('front/styles/bootstrap4/popper.js') }}"></script>
 <script src="{{ asset('front/styles/bootstrap4/bootstrap.min.js') }}"></script>
