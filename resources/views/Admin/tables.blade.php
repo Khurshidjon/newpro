@@ -1,8 +1,6 @@
 @extends('layouts.adminMaster')
 @section('adminContent')
-{{--
-    @if(Auth::user()->can('lists', \App\User::class))
---}}
+
 <div id="wrapper">
 
     <!-- Navigation -->
@@ -345,25 +343,20 @@
             <li class="nav-item active">
                 <a class="nav-link" data-toggle="tab" href="#home">Users</a>
             </li>
-            @foreach(Auth::user()->user_permissions as $permission)
-                    @if($permission->permissions === 'view-admin')
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="tab" href="#menu1">Admin</a>
                         </li>
-
-                    @elseif($permission->permissions === 'view-admin-child')
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="tab" href="#menu2">Child of Admin</a>
                         </li>
-                    @elseif($permission->permissions === 'view-superadmin')
+
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="tab" href="#menu3">Super admin</a>
                         </li>
-                    @endif
-            @endforeach
+
         </ul>
         <div class="tab-content">
-            <div id="home" class="container tab-pane active"><br>
+            <div id="home" class="tab-pane active"><br>
 
                 <div class="panel panel-default">
                     <div class="panel-heading">
@@ -371,7 +364,8 @@
                     </div>
                     <!-- /.panel-heading -->
                     <div class="panel-body">
-                        <form action="" class="form-group">
+                        <form action="{{ route('search.list') }}" class="form-group" method="post">
+                            {{ csrf_field() }}
                             <input type="text" name="search" class="form-control" placeholder="Search live" id="search" autocomplete="off">
                         </form>
                         <div class="table-responsive" id="myDiv">
@@ -381,157 +375,42 @@
                                     <th>#</th>
                                     <th>Full Name</th>
                                     <th>E-mail</th>
-                                    <th colspan="3">Action</th>
+                                    <th>Roles</th>
+                                    <th>Actions</th>
                                 </tr>
                                 </thead>
                                 <tbody id="usersList">
+                                <?php $i = 0; ?>
+                                     @foreach($users as $user)
+                                         <tr>
+                                             <td>{{ ++$i }}</td>
+                                             <td>{{ $user->name }}</td>
+                                             <td>{{ $user->email }}</td>
+                                             <td>
+                                                     @foreach($user->roles as $role)
+                                                         <label class="badge badge-success">{{ $role->name }}</label>
+                                                     @endforeach
+                                             </td>
+                                             <td>
+
+                                                 <form action="" class="d-block">
+                                                     @can('user-list')
+                                                         <a class="btn btn-info" href="{{ route('user.show', [$user]) }}">Show</a>
+                                                     @endcan
+                                                     @can('user-edit')
+                                                         <a class="btn btn-primary" href="{{ route('user.edit', [$user])}}">Edit</a>
+                                                     @endcan
+                                                     @can('user-delete')
+                                                        <button class="btn btn-danger">Delete</button>
+                                                     @endcan
+                                                 </form>
+                                             </td>
+                                         </tr>
+                                     @endforeach
 
                                 </tbody>
                             </table>
-                            <div id="result"></div>
-                            <script>
-                                var url = '<?php echo route('users.list')?>';
-                                var page = 1;
-                                $(function () {
-                                    function getDataInfo()
-
-                                    {
-                                        $.ajaxSetup({
-                                            headers: {
-                                                'X-CSRF-TOKEN': $("meta[name='csrf-token']").attr('content')
-                                            }
-                                        });
-                                        $.ajax({
-                                            dataType: 'json',
-                                            method: 'GET',
-                                            url: url,
-                                            data: {
-                                                page: page,
-                                            },
-                                            success: function (data) {
-                                                writeData(data);
-                                            },
-                                        });
-                                    }
-                                    getDataInfo();
-                                    function writeData(data) {
-                                        var id = 1;
-                                        var user = '';
-                                        var access = '';
-                                        $.each(data, function (key, value) {
-                                            user = user + "<tr>";
-                                            user = user + "<td>" + id++ + "</td>";
-                                            user = user + "<td>" + value.name + "</td>";
-                                            user = user + "<td>" + value.email+ "</td>";
-                                            user = user + "<td><p style='font-size: 15px;' class='badge'>" + value.roles + "</p></td>";
-                                            user = user + "</tr>";
-                                            $('#usersList').html(user);
-                                        });
-                                    }
-
-                                    $('#search').on('keyup', function(){
-
-                                        $value=$(this).val();
-                                        $.ajaxSetup({
-                                            headers: {
-                                                'X-CSRF-TOKEN': $("meta[name='csrf-token']").attr('content')
-                                            }
-                                        });
-                                        $.ajax({
-
-                                            type : 'get',
-
-                                            url : '<?php echo route('search.list')?>',
-
-                                            data:{'search':$value},
-
-                                            success:function(data){
-                                                var id = 1;
-                                                var user = '';
-                                                var access = '';
-                                                $.each(data, function (key, value) {
-                                                    user = user + "<tr>";
-                                                    user = user + "<td>" + id++ + "</td>";
-                                                    user = user + "<td>" + value.name + "</td>";
-                                                    user = user + "<td>" + value.email+ "</td>";
-                                                    user = user + '<td>';
-                                                    user = user + '<a href="user/show/'+value.id+'" type="button" data-toggle="collapse" data-target="#demo_'+ value.id +'" class="btn btn-info">view</a>';
-                                                    user = user + '<button type="button" data-toggle="collapse" data-target="#edit_'+ value.id +'" class="btn btn-success">edit</button>';
-                                                    user = user + '<button class="btn btn-danger">delete</button>';
-                                                    user = user + '</td>';
-                                                    user = user + "</tr>";
-                                                    access = access + '<div class="collapse" id="edit_'+ value.id +'" >';
-                                                    access = access + '<form method="post" class="list-group" id="form_'+ value.id +'">';
-                                                    access = access + '<input type="hidden" name="_token" value="{{ csrf_token() }}">';
-                                                    access = access + '<input type="hidden" id="id_'+value.id+'" name="id" value="' + value.id + '">';
-                                                    access = access + '<div class="form-group">';
-                                                    access = access + '<input type="text" class="form-control" id="name_' + value.id +'" name="name" value="' + value.name + '">';
-                                                    access = access + '</div>';
-                                                    access = access + '<div class="form-group">';
-                                                    access = access + '<input type="email" class="form-control" id="email_' + value.id + '" name="email" value="' + value.email + '">';
-                                                    access = access + '</div>';
-                                                    access = access + '<div class="form-group">';
-                                                    access = access + '<input type="password" class="form-control" id="old_password_' + value.id +'" name="old_password" placeholder="Current password (optional)">';
-                                                    access = access + '</div>';
-                                                    access = access + '<div class="form-group">';
-                                                    access = access + '<input type="password" class="form-control" id="new_password_' + value.id +'" name="new_password" placeholder="Update password (optional)">';
-                                                    access = access + '</div>';
-                                                    access = access + '<div class="form-group">';
-                                                    access = access + '<input type="password" class="form-control" id="password_confirm_'+ value.id +'" name="password_confirmation" placeholder="Confirm password (optional)">';
-                                                    access = access + '</div>';
-                                                    access = access + '<button type="submit" id="button_'+ value.id +'" class="form-control btn btn-info">update</button>';
-                                                    access = access + '</form>';
-                                                    access = access + '<hr>';
-                                                    access = access + '</div>';
-                                                    $('#usersList').html(user);
-                                                    $('#result').html(access);
-                                                $('#button_'+ value.id).on('click', function (e) {
-                                                    e.preventDefault();
-                                                    var name = $('#name_'+value.id).val();
-                                                    var email = $('#email_'+value.id).val();
-                                                    var old_password = $('#old_password_'+value.id).val();
-                                                    var new_password = $('#new_password_'+value.id).val();
-                                                    var password_confirm = $('#password_confirm_'+value.id).val();
-                                                    var id = $('#id_'+value.id).val();
-                                                    $.ajaxSetup({
-                                                        headers: {
-                                                            'X-CSRF-TOKEN': $("meta[name='csrf-token']").attr('content')
-                                                        }
-                                                    });
-                                                    $.ajax({
-                                                        cache: false,
-                                                        url: '{{ route('users.update') }}',
-                                                        type: 'post',
-                                                        dataType:'json',
-                                                        data: {
-                                                            id: id,
-                                                            name: name,
-                                                            email: email,
-                                                            old_password: old_password,
-                                                            new_password: new_password,
-                                                            password_confirm: password_confirm
-                                                        },
-                                                        success: {function(data){
-                                                                $("#myTable").load('<?php echo route('users.list')?>');
-/*
-                                                                location.reload()
-*/
-                                                                console.log()
-                                                            }
-                                                        }
-                                                    })
-
-                                                })
-                                                });
-                                            },
-                                            fail:function(jqXHR, ajaxOptions, thrownError)
-                                            {
-                                                alert('No response from server');
-                                            },
-                                        });
-                                    });
-                                });
-                            </script>
+                            <div id="">{{ $users->links() }}</div>
                         </div>
                     </div>
                 </div>
@@ -558,63 +437,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <?php $i = 1;?>
-                    @foreach($users as $user)
-                            @foreach($user->user_roles as $role)
-                            @foreach($user->user_permissions as $permission)
 
-                            @if($role->roles === 'admin')
-                                <tr>
-                                    <td>{{ $i++ }}</td>
-
-                                    <td class="text-success">{{ $user->name }}</td>
-                                    <td>
-                                        @foreach($user->user_roles as $role)
-                                            @can('viewRole', Auth::user())
-                                            <form action="{{ route('admin.detachRole', ['user'=>$user, 'role' => $role]) }}" class="d-block" method="post">
-                                                {{csrf_field()}}
-                                                <p class="text-info">{{ $role->roles }}
-                                                    <button type="submit" style="border: none; background-color: white"><i class="fa fa-minus-circle text-danger"></i></button>
-                                                </p>
-                                            </form>
-                                            @endcan
-                                        @endforeach
-                                    </td>
-                                    <td>
-                                        @foreach($roles->diff($user->user_roles) as $role )
-                                            <form action="{{ route('admin.attachRole', ['user'=>$user, 'role' => $role]) }}" class="d-block" method="post">
-                                                {{csrf_field()}}
-                                                <p class="text-danger">{{ $role->roles}}
-                                                    <button type="submit" style="border: none; background-color: white"><i class="fa fa-plus-circle text-success"></i></button>
-                                                </p>
-                                            </form>
-                                        @endforeach
-                                    </td>
-                                    <td>
-                                        @foreach($user->user_permissions as $permission)
-                                            <form action="{{ route('admin.detachPermission', ['user'=>$user, 'permission' => $permission]) }}" class="d-block" method="post">
-                                                {{csrf_field()}}
-                                                <p class="text-success">{{ $permission->permissions }}
-                                                    <button type="submit" style="border: none; background-color: white"><i class="fa fa-minus-circle text-danger"></i></button>
-                                                </p>
-                                            </form>
-                                        @endforeach
-                                    </td>
-                                    <td>
-                                        @foreach($permissions->diff($user->user_permissions) as $permission )
-                                            <form action="{{ route('admin.attachPermission', ['user'=>$user, 'permission' => $permission]) }}" class="d-block" method="post">
-                                                {{csrf_field()}}
-                                                <p class="text-danger">{{ $permission->permissions }}
-                                                    <button type="submit" style="border: none; background-color: white"><i class="fa fa-plus-circle text-success"></i></button>
-                                                </p>
-                                            </form>
-                                        @endforeach
-                                    </td>
-                                </tr>
-                            @endif
-                        @endforeach
-                        @endforeach
-                    @endforeach
                     </tbody>
                 </table>
             </div>
@@ -646,64 +469,7 @@
                                     <th>Nope permisssion</th>
                                 </tr>
                                 </thead>
-                                <tbody>
-                                <?php $i = 1;?>
-                                @foreach($users as $user)
-                                    @can('view', $user)
-                                        @foreach($user->user_roles as $role)
-                                    @foreach($user->user_permissions as $permission)
-                                        @if($role->roles === 'admin-child')
-                                            <tr>
-                                                <td>{{ $i++ }}</td>
 
-                                                <td class="text-success">{{ $user->name }}</td>
-                                                <td>
-                                                    @foreach($user->user_roles as $role)
-                                                        <form action="{{ route('admin.detachRole', ['user'=>$user, 'role' => $role]) }}" class="d-block" method="post">
-                                                            {{csrf_field()}}
-                                                            <p class="text-info">{{ $role->roles }}
-                                                                <button type="submit" style="border: none; background-color: white"><i class="fa fa-minus-circle text-danger"></i></button>
-                                                            </p>
-                                                        </form>
-                                                    @endforeach
-                                                </td>
-                                                <td>
-                                                    @foreach($roles->diff($user->user_roles) as $role )
-                                                        <form action="{{ route('admin.attachRole', ['user'=>$user, 'role' => $role]) }}" class="d-block" method="post">
-                                                            {{csrf_field()}}
-                                                            <p class="text-danger">{{ $role->roles}}
-                                                                <button type="submit" style="border: none; background-color: white"><i class="fa fa-plus-circle text-success"></i></button>
-                                                            </p>
-                                                        </form>
-                                                    @endforeach
-                                                </td>
-                                                <td>
-                                                    @foreach($user->user_permissions as $permission)
-                                                        <form action="{{ route('admin.detachPermission', ['user'=>$user, 'permission' => $permission])}}" class="d-block" method="post">
-                                                            {{csrf_field()}}
-                                                            <p class="text-success">{{ $permission->permissions }}
-                                                                <button type="submit" style="border: none; background-color: white"><i class="fa fa-minus-circle text-danger"></i></button>
-                                                            </p>
-                                                        </form>
-                                                    @endforeach
-                                                </td>
-                                                <td>
-                                                    @foreach($permissions->diff($user->user_permissions) as $permission )
-                                                        <form action="{{ route('admin.attachPermission', ['user'=>$user, 'permission' => $permission]) }}" class="d-block" method="post">
-                                                            {{csrf_field()}}
-                                                            <p class="text-danger">{{ $permission->permissions }}
-                                                                <button type="submit" style="border: none; background-color: white"><i class="fa fa-plus-circle text-success"></i></button>
-                                                            </p>
-                                                        </form>
-                                                    @endforeach
-                                                </td>
-                                            </tr>
-                                        @endif
-                                    @endforeach
-                                    @endforeach
-                                    @endcan
-                                @endforeach
-                                </tbody>
                             </table>
                         </div>
                         <!-- /.table-responsive -->
@@ -733,60 +499,7 @@
                                     <th>Nope permisssion</th>
                                 </tr>
                                 </thead>
-                                <tbody>
-                                <?php $i = 1;?>
-                                @foreach($users as $user)
-                                    @foreach($user->user_permissions as $permission)
-                                        @if($permission->permissions === 'view-superadmin')
-                                            <tr>
-                                                <td>{{ $i++ }}</td>
 
-                                                <td class="text-success">{{ $user->name }}</td>
-                                                <td>
-                                                    @foreach($user->user_roles as $role)
-                                                        <form action="{{ route('admin.detachRole', ['user'=>$user, 'role' => $role]) }}" class="d-block" method="post">
-                                                            {{csrf_field()}}
-                                                            <p class="text-info">{{ $role->roles }}
-                                                                <button type="submit" style="border: none; background-color: white"><i class="fa fa-minus-circle text-danger"></i></button>
-                                                            </p>
-                                                        </form>
-                                                    @endforeach
-                                                </td>
-                                                <td>
-                                                    @foreach($roles->diff($user->user_roles) as $role )
-                                                        <form action="{{ route('admin.attachRole', ['user'=>$user, 'role' => $role]) }}" class="d-block" method="post">
-                                                            {{csrf_field()}}
-                                                            <p class="text-danger">{{ $role->roles}}
-                                                                <button type="submit" style="border: none; background-color: white"><i class="fa fa-plus-circle text-success"></i></button>
-                                                            </p>
-                                                        </form>
-                                                    @endforeach
-                                                </td>
-                                                <td>
-                                                    @foreach($user->user_permissions as $permission)
-                                                        <form action="{{ route('admin.detachPermission', ['user'=>$user, 'permission' => $permission])}}" class="d-block" method="post">
-                                                            {{csrf_field()}}
-                                                            <p class="text-success">{{ $permission->permissions }}
-                                                                <button type="submit" style="border: none; background-color: white"><i class="fa fa-minus-circle text-danger"></i></button>
-                                                            </p>
-                                                        </form>
-                                                    @endforeach
-                                                </td>
-                                                <td>
-                                                    @foreach($permissions->diff($user->user_permissions) as $permission )
-                                                        <form action="{{ route('admin.attachPermission', ['user'=>$user, 'permission' => $permission]) }}" class="d-block" method="post">
-                                                            {{csrf_field()}}
-                                                            <p class="text-danger">{{ $permission->permissions }}
-                                                                <button type="submit" style="border: none; background-color: white"><i class="fa fa-plus-circle text-success"></i></button>
-                                                            </p>
-                                                        </form>
-                                                    @endforeach
-                                                </td>
-                                            </tr>
-                                        @endif
-                                    @endforeach
-                                @endforeach
-                                </tbody>
                             </table>
                         </div>
                         <!-- /.table-responsive -->
@@ -798,8 +511,4 @@
         </div>
     </div>
 </div>
-{{--
-    @endif
---}}
-
 @endsection

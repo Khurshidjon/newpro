@@ -7,6 +7,7 @@ use App\Country;
 use App\degree_of_hazard;
 use App\Product;
 use App\ProductPhoto;
+use App\Rate;
 use Cviebrock\EloquentSluggable\Services\SlugService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,6 +17,13 @@ use RealRashid\SweetAlert\Facades\Alert;
 use Intervention\Image\Facades\Image;
 class ProductController extends Controller
 {
+    protected $rate;
+
+    public function __construct(Rate $rate)
+    {
+        $this->rate = $rate;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -47,7 +55,7 @@ class ProductController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -56,7 +64,7 @@ class ProductController extends Controller
             'photos' => 'required',
             'title' => 'required',
             'details' => 'required',
-            'degree_of_hazard'=>'required',
+            'degree_of_hazard' => 'required',
             'save_conditions' => 'required',
             'danger' => 'required',
             'danger_type' => 'required',
@@ -107,18 +115,17 @@ class ProductController extends Controller
 
             }
 
-            if($product)
-            {
+            if ($product) {
                 alert()->success('Product Created', 'Successfully');
                 return redirect()->route('product.index');
             }
 
-            } else {
+        } else {
 
             alert()->error('Oops...', 'Something went wrong!');
             return redirect()->route('add.product');
 
-            }
+        }
 
     }
 
@@ -126,19 +133,49 @@ class ProductController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Product  $product
+     * @param  \App\Product $product
      * @return \Illuminate\Http\Response
      */
     public function show(Product $product)
     {
+        $i = $product->views;
+        $product->update([
+            'views' => $i = $i + 1,
+        ]);
         $comments = Comment::all();
-        return view('user.show', ['product' => $product, 'comments' => $comments]);
+        $rates = Rate::all();
+        $count = count($rates);
+
+        if (Auth::check())
+        {
+            $ratingUser = Rate::where('user_id', '=', Auth::id())->where('product_id', '=', $product->id)->first();
+
+            if ($ratingUser) {
+                $ratingUser = 1 * $ratingUser->rates;
+            }
+            else {
+                $ratingUser = 0;
+            }
+        }
+        else {
+            $ratingUser = 0;
+        }
+        $rate5 = DB::table('rates')->where('rates', '=', 5)->where('product_id', '=', $product->id)->count();
+        $rate4 = DB::table('rates')->where('rates', '=', 4)->where('product_id', '=', $product->id)->count();
+        $rate3 = DB::table('rates')->where('rates', '=', 3)->where('product_id', '=', $product->id)->count();
+        $rate2 = DB::table('rates')->where('rates', '=', 2)->where('product_id', '=', $product->id)->count();
+        $rate1 = DB::table('rates')->where('rates', '=', 1)->where('product_id', '=', $product->id)->count();
+
+        $summa = Rate::where('product_id', '=', $product->id)->sum('rates');
+        $rating = round($summa/$count,1);
+        $voteAll = Rate::where('product_id', '=', $product->id)->count('rates');
+        return view('user.show', ['product' => $product, 'comments' => $comments, 'rate5' => $rate5, 'rate4'=>$rate4, 'rate3'=>$rate3, 'rate2'=> $rate2, 'rate1'=>$rate1, 'summa'=>$summa, 'count'=>$count, 'rating' => $rating, 'rates' => $rates, 'voteAll' => $voteAll, 'ratingUser' => $ratingUser]);
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Product  $product
+     * @param  \App\Product $product
      * @return \Illuminate\Http\Response
      */
     public function edit(Product $product)
@@ -149,8 +186,8 @@ class ProductController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Product  $product
+     * @param  \Illuminate\Http\Request $request
+     * @param  \App\Product $product
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Product $product)
@@ -161,29 +198,35 @@ class ProductController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Product  $product
+     * @param  \App\Product $product
      * @return \Illuminate\Http\Response
      */
     public function destroy(Product $product)
     {
         //
     }
+
     public function search(Request $request)
     {
         $searchString = $request->input('search');
 
         $product_column = $request->get('search_category');
 
-        $result = DB::table('products')->where('title', 'LIKE', '%'. $request->input('search').'%')->get();
+        $result = DB::table('products')->where('title', 'LIKE', '%' . $request->input('search') . '%')->get();
 
         return response()->json($result);
     }
+
+    /*Comments read*/
     public function comments()
     {
         $comments = DB::table('comments')->join('users', 'comments.user_id', '=', 'users.id')->select('comments', 'product_id', 'comments.created_at', 'users.name')->get();
 
         return response()->json($comments);
     }
+
+    /*End comment read*/
+
     public function commentCreate(Request $request, Product $product)
     {
         $request->validate([
@@ -196,5 +239,30 @@ class ProductController extends Controller
         $comment->save();
         return response()->json($comment);
 
+    }
+
+    public function rates(Request $request)
+    {
+        $good_id = $request->id;
+        $user_id = $request->user_id;
+        $rating = $request->rating;
+
+
+        $rates = Rate::where('user_id', $user_id)->where('product_id', $good_id)->first();
+
+
+        if ($rates) {
+            $rates->update(
+                [
+                    'rates' => $rating,
+                ]);
+        } else {
+            $model = new Rate();
+            $model->product_id = $good_id;
+            $model->user_id = $user_id;
+            $model->rates = $rating;
+            $model->save();
+        }
+        return 'ok';
     }
 }

@@ -6,11 +6,11 @@ use App\Category;
 use App\Comment;
 use App\Country;
 use App\degree_of_hazard;
-use App\Permission;
+use Spatie\Permission\Models\Permission;
 use App\User;
+use Spatie\Permission\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -34,27 +34,27 @@ class AdminController extends Controller
     }
     public function lists()
     {
-/*        $this->authorize('view', User::class);*/
-
-            $users = User::all();
-            $permissions = Permission::all();
-            $roles = Role::all();
-
+            $users = User::paginate(3);
+            $permissions = Permission::get();
+            $roles = Role::get();
             return view('Admin.tables', ['users' => $users, 'permissions' => $permissions, 'roles' => $roles]);
     }
     public function usersList()
     {
-/*        $users = DB::table('users')->join('role_user', 'role_user.user_id', '=', 'users.id')->join('roles', 'role_user.role_id', '=', 'roles.id')->select('users.name', 'users.email', 'roles.roles')->get();*/
-/*            $users = User::with('user_roles', 'user_permissions')->get();*/
-            $users = User::all();
-            return response()->json($users);
-
+     //
     }
     public function userShow($id)
     {
 /*        $this->authorize('view', User::class);*/
         $user = User::find($id);
         return view('Admin.viewUser', ['user' => $user]);
+    }
+    public function userEdit($id)
+    {
+        $user = User::find($id);
+        $roles = Role::get();
+        $permissions = Permission::get();
+        return view('Admin.editUser', ['user' => $user, 'roles' => $roles, 'permissions' => $permissions]);
     }
     public function userUpdate(Request $request)
     {
@@ -77,8 +77,10 @@ class AdminController extends Controller
 
     public function userSearch(Request $request)
     {
-        $result = DB::table('users')->where('name','LIKE',  '%'. $request->input('search') .'%')->orWhere('email', 'LIKE', '%'. $request->input('search') .'%')->get();
-        return response()->json($result);
+        $permissions = Permission::all();
+        $roles = Role::all();
+        $result = User::where('name','LIKE',  '%'. $request->input('search') .'%')->orWhere('email', 'LIKE', '%'. $request->input('search') .'%')->get();
+        return redirect()->route('admin.lists', ['tableUsers' =>$result]);
     }
 
     public function create()
@@ -92,22 +94,42 @@ class AdminController extends Controller
     }
     public function attachPermission(User $user, Permission $permission)
     {
-        $user->user_permissions()->attach($permission);
+        $user->permissions()->attach($permission);
         return back();
     }
     public function detachPermission(User $user, Permission $permission)
     {
-        $user->user_permissions()->detach($permission);
+        $user->permissions()->detach($permission);
         return back();
     }
     public function attachRole(User $user, Role $role)
     {
-        $user->user_roles()->attach($role);
+        $user->roles()->attach($role);
         return back();
     }
     public function detachRole(User $user, Role $role)
     {
-        $user->user_roles()->detach($role);
+        $user->roles()->detach($role);
+        return back();
+    }
+    public function addRolePage()
+    {
+        $roles = Role::get();
+        return view('Admin.roles', compact(['roles']));
+    }
+    public function RoleToPermission(Role $role)
+    {
+        $permissions = Permission::get();
+        return view('Admin.roleToPermission', compact(['role', 'permissions']));
+    }
+    public function attachPermissionToRole(Role $role, Permission $permission)
+    {
+        $role->permissions()->attach($permission);
+        return back();
+    }
+    public function detachPermissionFromRole(Role $role, Permission $permission)
+    {
+        $role->permissions()->detach($permission);
         return back();
     }
 }

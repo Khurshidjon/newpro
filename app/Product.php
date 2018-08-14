@@ -4,12 +4,14 @@ namespace App;
 
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Permission\Traits\HasRoles;
 
 
 class Product extends Model
 {
-    use Sluggable;
+    use Sluggable, HasRoles;
 
+    protected $guard_name = 'web'; // or whatever guard you want to use
 
     public function sluggable()
     {
@@ -38,6 +40,7 @@ class Product extends Model
         'country_id',
         'category_id',
         'user_id',
+        'views',
     ];
     public function country()
     {

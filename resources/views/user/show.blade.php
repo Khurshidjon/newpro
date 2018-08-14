@@ -1,3 +1,11 @@
+<?php
+    if (Auth::check()){
+        $user_id = Auth::id();
+    }
+    else {
+        $user_id = 0;
+    }
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,20 +17,160 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="{{ asset('front/js/jquery-3.3.1.min.js') }}"></script>
     <link rel="stylesheet" type="text/css" href="{{ asset('front/styles/bootstrap4/bootstrap.min.css') }}">
+{{--
     <link href="{{ asset('front/plugins/fontawesome-free-5.0.1/css/fontawesome-all.css') }}" rel="stylesheet" type="text/css">
+--}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="{{ asset('front/plugins/OwlCarousel2-2.2.1/owl.carousel.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('front/plugins/OwlCarousel2-2.2.1/owl.theme.default.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('front/plugins/OwlCarousel2-2.2.1/animate.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('front/styles/product_styles.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('front/styles/product_responsive.css') }}">
-
+    <link rel="stylesheet" href="{{asset('v2.3.2/jquery.rateyo.min.css')}}"/>
+    <script type="text/javascript" src="{{ asset('v2.3.2/jquery.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('v2.3.2/jquery.rateyo.js') }}"></script>
     <script src="https://unpkg.com/sweetalert2@7.18.0/dist/sweetalert2.all.js"></script>
+
+    <script src="{{ asset('js/rating.js') }}"></script>
+    <link rel="stylesheet" href="{{asset('css/rating.css')}}"/>
+
     <style type="text/css">
         .ajax-load{
             background: #e1e1e1;
             padding: 10px 0px;
             width: 100%;
         }
+        * {
+            -webkit-box-sizing:border-box;
+            -moz-box-sizing:border-box;
+            box-sizing:border-box;
+        }
+
+        *:before, *:after {
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+
+        .clearfix {
+            clear:both;
+        }
+
+        .text-center {text-align:center;}
+
+        a {
+            color: tomato;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: #2196f3;
+        }
+
+        pre {
+            display: block;
+            padding: 9.5px;
+            margin: 0 0 10px;
+            font-size: 13px;
+            line-height: 1.42857143;
+            color: #333;
+            word-break: break-all;
+            word-wrap: break-word;
+            background-color: #F5F5F5;
+            border: 1px solid #CCC;
+            border-radius: 4px;
+        }
+
+        .header {
+            padding:20px 0;
+            position:relative;
+            margin-bottom:10px;
+
+        }
+
+        .header:after {
+            content:"";
+            display:block;
+            height:1px;
+            background:#eee;
+            position:absolute;
+            left:30%; right:30%;
+        }
+
+        .header h2 {
+            font-size:3em;
+            font-weight:300;
+            margin-bottom:0.2em;
+        }
+
+        .header p {
+            font-size:14px;
+        }
+
+
+
+        #a-footer {
+            margin: 20px 0;
+        }
+
+        .new-react-version {
+            padding: 20px 20px;
+            border: 1px solid #eee;
+            border-radius: 20px;
+            box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
+
+            text-align: center;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .new-react-version .react-svg-logo {
+            text-align: center;
+            max-width: 60px;
+            margin: 20px auto;
+            margin-top: 0;
+        }
+
+
+        /* Rating Star Widgets Style */
+        .rating-stars ul {
+            list-style-type:none;
+            padding:0;
+
+            -moz-user-select:none;
+            -webkit-user-select:none;
+        }
+        .rating-stars ul > li.star {
+            display:inline-block;
+
+        }
+
+        /* Idle State of the stars */
+        .rating-stars ul > li.star > i.fa {
+            font-size:2.5em; /* Change the size of the stars */
+            color:#FF912C; /* Color on idle state */
+        }
+
+        /* Hover state of the stars */
+        .rating-stars ul > li.star.hover > i.fa {
+            color:#FFD700;
+        }
+
+        /* Selected state of the stars */
+        .rating-stars ul > li.star.selected > i.fa {
+            color:#FF912C;
+        }
+
+        .progress {
+            margin-bottom: 10px;
+        }
+
+        .progress-text {
+            background-color: #FFFFFF;
+            color: #000000;
+            padding: 0 10px;
+        }
+
     </style>
 
 </head>
@@ -30,7 +178,6 @@
 <body>
 
 <div class="super_container">
-
     <!-- Header -->
 
     <header class="header">
@@ -41,8 +188,8 @@
             <div class="container">
                 <div class="row">
                     <div class="col d-flex flex-row">
-                        <div class="top_bar_contact_item"><div class="top_bar_icon"><img src="images/phone.png" alt=""></div>+38 068 005 3570</div>
-                        <div class="top_bar_contact_item"><div class="top_bar_icon"><img src="images/mail.png" alt=""></div><a href="mailto:fastsales@gmail.com">fastsales@gmail.com</a></div>
+                        <div class="top_bar_contact_item"><div class="top_bar_icon"><img src="{{ asset('images/phone.png') }}" alt=""></div>+38 068 005 3570</div>
+                        <div class="top_bar_contact_item"><div class="top_bar_icon"><img src="{{ asset('images/mail.png') }}" alt=""></div><a href="mailto:fastsales@gmail.com">fastsales@gmail.com</a></div>
                         <div class="top_bar_content ml-auto">
                             <div class="top_bar_menu">
                                 <ul class="standard_dropdown top_bar_dropdown">
@@ -67,11 +214,11 @@
                             <div class="top_bar_user">
                                 @guest
                                     <div>
-                                        <div class="user_icon"><img src="images/user.svg" alt=""></div>
+                                        <div class="user_icon"><img src="{{ asset('images/user.svg') }}" alt=""></div>
                                         <a href="{{ route('register') }}">Register</a>
                                     </div>
                                     <div>
-                                        <div class="user_icon"><img src="images/user.svg" alt=""></div>
+                                        <div class="user_icon"><img src="{{ asset('images/user.svg') }}" alt=""></div>
                                         <a href="{{ route('login') }}">Sign in</a>
                                     </div>
                                 @else
@@ -134,7 +281,7 @@
                                                 </ul>
                                             </div>
                                         </div>
-                                        <button type="submit" class="header_search_button trans_300" value="Submit"><img src="images/search.png" alt=""></button>
+                                        <button type="submit" class="header_search_button trans_300" value="Submit"><img src="{{ asset('images/search.png') }}" alt=""></button>
                                     </form>
                                 </div>
                             </div>
@@ -145,7 +292,7 @@
                     <div class="col-lg-4 col-9 order-lg-3 order-2 text-lg-left text-right">
                         <div class="wishlist_cart d-flex flex-row align-items-center justify-content-end">
                             <div class="wishlist d-flex flex-row align-items-center justify-content-end">
-                                <div class="wishlist_icon"><img src="images/heart.png" alt=""></div>
+                                <div class="wishlist_icon"><img src="{{ asset('images/heart.png') }}" alt=""></div>
                                 <div class="wishlist_content">
                                     <div class="wishlist_text"><a href="#">Wishlist</a></div>
                                     <div class="wishlist_count">115</div>
@@ -156,7 +303,7 @@
                             <div class="cart">
                                 <div class="cart_container d-flex flex-row align-items-center justify-content-end">
                                     <div class="cart_icon">
-                                        <img src="images/cart.png" alt="">
+                                        <img src="{{ asset('images/cart.png') }}" alt="">
                                         <div class="cart_count"><span>10</span></div>
                                     </div>
                                     <div class="cart_content">
@@ -218,7 +365,6 @@
                             </div>
 
                             <!-- Main Nav Menu -->
-
                             <div class="main_nav_menu ml-auto">
                                 <ul class="standard_dropdown main_nav_dropdown">
                                     <li><a href="index.html">Home<i class="fas fa-chevron-down"></i></a></li>
@@ -365,8 +511,8 @@
                             </ul>
 
                             <div class="menu_contact">
-                                <div class="menu_contact_item"><div class="menu_contact_icon"><img src="images/phone_white.png" alt=""></div>+38 068 005 3570</div>
-                                <div class="menu_contact_item"><div class="menu_contact_icon"><img src="images/mail_white.png" alt=""></div><a href="mailto:fastsales@gmail.com">fastsales@gmail.com</a></div>
+                                <div class="menu_contact_item"><div class="menu_contact_icon"><img src="{{ asset('images/phone_white.png') }}" alt=""></div>+38 068 005 3570</div>
+                                <div class="menu_contact_item"><div class="menu_contact_icon"><img src="{{ asset('images/mail_white.png') }}" alt=""></div><a href="mailto:fastsales@gmail.com">fastsales@gmail.com</a></div>
                             </div>
                         </div>
                     </div>
@@ -392,13 +538,159 @@
 
                 <!-- Selected Image -->
                 <div class="col-lg-5 order-lg-2 order-1">
-                    <div class="image_selected"><img src="{{ asset('storage/'. $product->images[0]->filename) }}" alt=""></div>
+                    <div class="image_selected">
+                        <img src="{{ asset('storage/'. $product->images[0]->filename) }}" alt="">
+                    </div>
+                    <span class="float-left text-info"> <i class="fa fa-clock-o text-secondary"></i> {{date_format($product->created_at, 'H:i/ d.m.Y')  }}</span>
+                    <span class="float-right text-info"> <i class="fa fa-eye text-secondary"></i> {{ $product->views }}</span>
+                    <br>
+                    <div class='rating-stars text-center custom_dropdown_placeholder'>
+                        <h1 id="rateCount"></h1>
+                    </div>
+                    <div class="philips-rating-name-rat">
+                        <div id="ratingBar">
+                            <?php if(Auth::check()): ?>
+                                <script>
+                                    $(function () {
+                                        var count = 0;
+                                        var starsAll = <?= $summa ?>;//Всего звезд
+                                        var voteAll = <?= $voteAll ?>;//Всего голосов
+                                        var idShop = <?= $product->id ?>;//id статьи
+                                        var starWidth = 17;//ширина одной звезды
+                                        var ratingUser = <?= $ratingUser ?>;//старий райтинг пользователя если нет то ноль
+
+                                        var rating = (starsAll/voteAll); //Старый рейтинг
+                                        rating = Math.round(rating*100)/100;
+                                        if(isNaN(rating)){
+                                            rating = 0;
+                                        }
+                                        var ratingResCss = rating * starWidth;
+                                        $("#ratDone").css("width", ratingResCss);
+                                        $("#ratStat").html("Рейтинг: <strong>"+rating+"</strong> Голосов: <strong>"+voteAll+"</strong>");
+
+                                        var coords;
+                                        var stars;  //кол-во звезд при наведении
+                                        var ratingNew;  //Новое количество звезд
+
+                                        $("#rating").mousemove(function(e){
+                                            var offset = $("#rating").offset();
+                                            coords = e.clientX - offset.left; //текушая координата
+                                            stars = Math.ceil(coords/starWidth);
+                                            starsCss = stars*starWidth;
+                                            $("#ratHover").css("width", starsCss).attr("title", stars+" из 5");
+                                        });
+                                        $("#rating").mouseout(function(){
+                                            $("#ratHover").css("width", 0);
+                                        });
+                                        $("#rating").click(function(){
+
+                                            var aaa = ratingUser - stars;
+                                            var starsNew = starsAll - aaa;
+                                            if (ratingUser == 0 && count == 0) {
+                                                voteAll++;
+                                                count++;
+                                            }
+
+                                            var ratingNew = starsNew/voteAll;
+
+                                            ratingNew = Math.round(ratingNew*100)/100;
+
+                                            $.ajax({
+                                                type: "GET",
+                                                url: '{{ route('rate.product')}}',
+                                                data: {"id": idShop, "user_id": <?=$user_id?>,"rating": stars},
+                                                cache: false,
+                                                success: function(response){
+                                                    if(response == "ok"){
+                                                        var newRat = response+"px";
+                                                        var newRatingResCss = ratingNew * starWidth;
+                                                        $("#ratDone").css('width', newRatingResCss);
+                                                        $("#ratStat").html("Рейтинг: <strong>"+ratingNew+"</strong> Голосов: <strong>"+voteAll+"</strong>");
+                                                    }else{
+                                                        $("#ratStat").text(response);
+                                                    }
+                                                }
+                                            });
+                                            return false;
+                                        });
+
+                                    })
+                                </script>
+                            <?php else:?>
+                            <script>
+                                $(function () {
+                                    var starsAll = <?= $summa ?>;//Всего звезд
+                                    var voteAll = <?= $voteAll ?>;//Всего голосов
+                                    var idShop = <?= $product->id ?>;//id статьи
+                                    var starWidth = 17;//ширина одной звезды
+                                    var ratingUser = 0;//старий райтинг пользователя если нет то ноль
+
+                                    var rating = (starsAll/voteAll); //Старый рейтинг
+                                    rating = Math.round(rating*100)/100;
+                                    if(isNaN(rating)){
+                                        rating = 0;
+                                    }
+                                    var ratingResCss = rating * starWidth;
+                                    $("#ratDone").css("width", ratingResCss);
+                                    $("#ratStat").html("Рейтинг: <strong>"+rating+"</strong> Голосов: <strong>"+voteAll+"</strong>");
+                                })
+                            </script>
+                            <?php endif; ?>
+                            <div id="rating">
+                                <div id="ratZero"></div>
+                                <div id="ratDone"></div>
+                                <div id="ratHover"></div>
+                            </div>
+                            <div id="ratBlocks"></div>
+                            <div id="ratStat"></div>
+                        </div>
+                    </div>
+
+                    <br>
+                    <button type="button" class="btn btn-link" data-toggle="collapse" data-target="#ratingContent" style="text-decoration: none">Batafsil</button>
+
+                    <section class='rating-widget collapse' id="ratingContent">
+                        <div class="progress">
+                            <span class="progress-text">
+                                5
+                            </span>
+                            <div id="rate_5" class="progress-bar bg-danger progress-bar-striped" style="width: {{ round(($rate5/$voteAll)*100)}}%"></div>
+                        </div>
+                        <div class="progress">
+                            <span class="progress-text">
+                                4
+                            </span>
+                            <div id="rate_4" class="progress-bar bg-warning progress-bar-striped" style="width: {{ round(($rate4/$voteAll)*100)}}%">
+                            </div>
+                        </div>
+                        <div class="progress">
+                            <span class="progress-text">
+                                3
+                            </span>
+                            <div id="rate_3" class="progress-bar bg-info progress-bar-striped" style="width: {{ round(($rate3/$voteAll)*100)}}%">
+                            </div>
+                        </div>
+                        <div class="progress">
+                            <span class="progress-text">
+                                2
+                            </span>
+                            <div id="rate_2" class="progress-bar progress-bar-striped" style="width: {{ round(($rate2/$voteAll)*100)}}%">
+                            </div>
+                        </div>
+                        <div class="progress">
+                            <span class="progress-text">
+                                1
+                            </span>
+                            <div id="rate_1" class="progress-bar progress-bar-striped" style="width: {{ round(($rate1/$voteAll)*100)}}%">
+                            </div>
+                        </div>
+                    </section>
+                    <br>
                 </div>
                 <!-- Description -->
                 <div class="col-lg-5 order-3">
                     <div class="">
                             <p class="text-danger"><span><strong class="text-info">Mahsulot kategoriyasi: </strong></span>{{ $product->category->categories }}</p>
-
                         <hr>
                         @if($product->d_of_h->degree_id == 1)
                             <p class="text-danger"><span><strong class="text-info">Xavflilik darajasi: </strong></span>{{ $product->d_of_h->degree_of_hazards }} <sup><span class="badge" style="color: white; font-size: 12px; background-color: #ff9917">{{ $product->d_of_h->degree_id }}</span></sup></p>
@@ -413,17 +705,27 @@
                         @endif
                             <div class="progress">
                             @if($product->d_of_h->degree_id == 1)
-                                <div class="progress-bar progress-bar-striped progress-bar-animated" style=" width: 20%; background-color: yellowgreen"></div>
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 20%; background-color: #d4ff24"></div>
                             @elseif($product->d_of_h->degree_id == 2)
-                                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width:40%; background-color: #FFE234"></div>
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 10%; background-color: #d4ff24"></div>
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated" style="width:20%; background-color: #ffea3c"></div>
                             @elseif($product->d_of_h->degree_id == 3)
-                                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width:60%; background-color: #ff9917"></div>
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 10%; background-color: #d4ff24"></div>
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width:20%; background-color: #ffea3c"></div>
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width:30%; background-color: #ffd031"></div>
                             @elseif($product->d_of_h->degree_id == 4)
-                                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width:80%; background-color: #ff6f13"></div>
+                                <div class="progress-bar progress-bar-striped progress-bar-animated"  style="width:10%; background-color: #d4ff24"></div>
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width:15%; background-color: #ffea3c"></div>
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width:30%; background-color: #ffd031"></div>
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width:35%; background-color: #ff5d13"></div>
                             @elseif($product->d_of_h->degree_id == 5)
-                                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width:100%; background-color: red"></div>
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 20%; background-color: #d4ff24"></div>
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width:40%; background-color: #ffea3c"></div>
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width:60%; background-color: #ffd031"></div>
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width:80%; background-color: #ff5d13"></div>
+                                <div id="prog_5" class="progress-bar progress-bar-striped progress-bar-animated" style="width:100%; background-color: #ff160c"></div>
                             @endif
-                        </div>
+                            </div>
                         <hr>
                         <h4 class="text-dark product_name"><span><strong class="text-info">Mahsulot nomi: </strong></span>{!! $product->title !!}</h4>
                         <hr>
@@ -451,15 +753,11 @@
                         </div>
                     </div>
                 </div>
-
             </div>
-            <div class="w-50" >
+            <div class="w-75" >
                 <h2>Comments</h2>
                 <div class="card" id="comments">
                     <hr>
-                </div>
-                <div class="ajax-load text-center" style="display:none">
-                    <p><img src="http://demo.itsolutionstuff.com/plugin/loader.gif">Loading More post</p>
                 </div>
                     <div class="card-footer">
                         @if(Auth::check())
@@ -550,7 +848,6 @@
                                         }
                                     });
                                 });
-
                             });
                         </script>
                     </div>
@@ -836,7 +1133,8 @@
             </div>
         </div>
     </div>
-
+<script src="{{ asset('js/raphael-min.js') }}"></script>
+<script src="{{ asset('js/jquery.ratemate.js')}}"></script>
 <script src="{{ asset('front/styles/bootstrap4/popper.js') }}"></script>
 <script src="{{ asset('front/styles/bootstrap4/bootstrap.min.js') }}"></script>
 <script src="{{ asset('front/plugins/greensock/TweenMax.min.js') }}"></script>

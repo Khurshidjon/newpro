@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Comment;
 use App\User;
 use Closure;
 
@@ -17,9 +18,9 @@ class Admins
     public function handle($request, Closure $next)
     {
         $user = \Auth::user();
-        if (!$user->isAdmin == 1){
-            return redirect()->route('product.index');
+        if (\Auth::user() && $user->isAdmin = 1){
+            return $next($request);
         }
-        return $next($request);
+        return redirect('/');
     }
 }

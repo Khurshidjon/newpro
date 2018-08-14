@@ -1,8 +1,5 @@
 @extends('layouts.adminMaster')
 @section('adminContent')
-    {{--
-        @if(Auth::user()->can('lists', \App\User::class))
-    --}}
     <div id="wrapper">
 
         <!-- Navigation -->
@@ -14,7 +11,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="{{ route('admin.index') }}">Admin: {{ Auth::user()->name }}</a>
+                <a class="navbar-brand" href="index.html">SB Admin v2.0</a>
             </div>
             <!-- /.navbar-header -->
 
@@ -29,8 +26,8 @@
                                 <div>
                                     <strong>John Smith</strong>
                                     <span class="pull-right text-muted">
-                                    <em>Yesterday</em>
-                                </span>
+                                        <em>Yesterday</em>
+                                    </span>
                                 </div>
                                 <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque eleifend...</div>
                             </a>
@@ -41,8 +38,8 @@
                                 <div>
                                     <strong>John Smith</strong>
                                     <span class="pull-right text-muted">
-                                    <em>Yesterday</em>
-                                </span>
+                                        <em>Yesterday</em>
+                                    </span>
                                 </div>
                                 <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque eleifend...</div>
                             </a>
@@ -53,8 +50,8 @@
                                 <div>
                                     <strong>John Smith</strong>
                                     <span class="pull-right text-muted">
-                                    <em>Yesterday</em>
-                                </span>
+                                        <em>Yesterday</em>
+                                    </span>
                                 </div>
                                 <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque eleifend...</div>
                             </a>
@@ -235,10 +232,10 @@
                             <div class="input-group custom-search-form">
                                 <input type="text" class="form-control" placeholder="Search...">
                                 <span class="input-group-btn">
-                            <button class="btn btn-default" type="button">
-                                <i class="fa fa-search"></i>
-                            </button>
-                        </span>
+                                <button class="btn btn-default" type="button">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </span>
                             </div>
                             <!-- /input-group -->
                         </li>
@@ -335,53 +332,49 @@
             </div>
             <!-- /.navbar-static-side -->
         </nav>
+
         <div id="page-wrapper">
-            <div class="tab-content">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-lg-6">
-                            <input class="form-control" value="{{ $user->name }}" disabled="">
-                            <input class="form-control" value="{{ $user->email }}" disabled="">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header">Forms</h1>
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+            <!-- /.row -->
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            Basic Form Elements
                         </div>
-                        <div class="col-lg-3">
-                            <table class="table table-borderless">
-                                <thead>
-                                    <tr>
-                                        <th>Roles</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                @foreach($user->roles as $role)
-                                    <tr>
-                                            <td class="text-info">{{ $role->name }}</td>
-                                    </tr>
-                                @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="col-lg-3">
-                            <table class="table table-borderless">
-                                <thead>
-                                    <tr>
-                                        <th>Permissions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                {{--@foreach($user->user_permissions as $permission)
-                                    <tr>
-                                            <td  class="text-success">{{ $permission->permissions}}</td>
-                                    </tr>
-                                @endforeach--}}
-                                </tbody>
-                            </table>
+                        <div class="panel-body">
+                            <div class="container w-75">
+                                <h1 class="text-info">Add new Role</h1>
+                                    <div class="row">
+                                        <div class="col-lg-8">
+                                            <div class="table-responsive">
+                                                <table class="table">
+                                                    <thead>
+                                                    <tr>
+                                                        <th><h3>Roles</h3></th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    @foreach($roles as $role)
+                                                        <tr>
+                                                            <td><h><a href="{{ route('admin.roleToPermission', [$role]) }}">{{ $role->name }}</a></h></td>
+                                                        </tr>
+                                                    @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    {{--
-        @endif
-    --}}
 
 @endsection

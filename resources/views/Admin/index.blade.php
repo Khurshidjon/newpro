@@ -212,12 +212,23 @@
                     <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
                 </a>
                 <ul class="dropdown-menu dropdown-user">
-                    <li><a href="#"><i class="fa fa-user fa-fw"></i> User Profile</a>
-                    </li>
-                    <li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>
+                    <li class="p-lg-3 text-center">
+                        <i class="fa fa-user"></i>
+                        <span class="text-info">{{Auth::user()->name}}</span>
                     </li>
                     <li class="divider"></li>
-                    <li><a href="{{ route('admin.login') }}"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+                    <li class="p-lg-3 text-center">
+                        <i class="fa fa-sign-out"></i>
+                        <span>
+                            <a href="{{ route('logout') }}"
+                           onclick="event.preventDefault();
+                                             document.getElementById('logout-form').submit();" style="text-decoration: none">
+                            Logout
+                        </a>
+                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                            {{ csrf_field() }}
+                        </form>
+                        </span>
                     </li>
                 </ul>
                 <!-- /.dropdown-user -->
@@ -247,7 +258,7 @@
                         <a href="#"><i class="fa fa-bar-chart-o fa-fw"></i> Charts<span class="fa arrow"></span></a>
                         <ul class="nav nav-second-level">
                             <li>
-                                <a href="flot.html">Flot Charts</a>
+                                <a href="{{ route('admin.addRolePage') }}">Roles</a>
                             </li>
                             <li>
                                 <a href="morris.html">Morris.js Charts</a>

@@ -11,9 +11,6 @@ use Illuminate\Support\Facades\DB;
 class AdminPolicy
 {
     use HandlesAuthorization;
-    public function __construct(User $user) {
-        $this->user = $user;
-    }
 
     /**
      * Determine whether the user can view the model.
@@ -22,12 +19,9 @@ class AdminPolicy
      * @param  \App\User  $model
      * @return mixed
      */
-    public function viewRole(User $user)
+    public function lists(User $user)
     {
-        foreach ($user->user_roles as $role){
-            return  $role->id === DB::table('role_user')->where('role_id')->get();
-        }
-
+        return $user->user_roles()->pluck('user_id') === $user->id;
     }
 
     /**

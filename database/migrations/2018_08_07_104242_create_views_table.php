@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreatePermissionUserTable extends Migration
+class CreateViewsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,8 @@ class CreatePermissionUserTable extends Migration
      */
     public function up()
     {
-        Schema::create('permission_user', function (Blueprint $table) {
-            $table->increments('id');
-            $table->unsignedInteger('permission_id');
-            $table->unsignedInteger('user_id');
-            $table->timestamps();
+        Schema::table('products', function (Blueprint $table) {
+            $table->unsignedInteger('views')->default(0);
         });
     }
 
@@ -28,6 +25,8 @@ class CreatePermissionUserTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('permission_user');
+        Schema::table('products', function (Blueprint $table) {
+            $table->unsignedInteger('views');
+        });
     }
 }
