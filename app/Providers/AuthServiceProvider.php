@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Permission;
 use App\Policies\AdminPolicy;
+use App\Policies\ProductPolicy;
+use App\Product;
 use App\Role;
 use App\User;
 use Illuminate\Support\Facades\Gate;
@@ -19,6 +21,7 @@ class AuthServiceProvider extends ServiceProvider
     protected $policies = [
         'App\Model' => 'App\Policies\ModelPolicy',
         User::class => AdminPolicy::class,
+        Product::class => ProductPolicy::class,
     ];
 
     /**

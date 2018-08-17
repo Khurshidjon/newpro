@@ -5,6 +5,9 @@
     else {
         $user_id = 0;
     }
+//    if ($voteAll == 0){
+//        $voteAll = 1;
+//    }
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -523,6 +526,7 @@
     </header>
 
     <!-- Single Product -->
+@if($product->status == 1)
     <div class="single_product">
         <div class="container">
             <div class="row">
@@ -553,11 +557,11 @@
                                 <script>
                                     $(function () {
                                         var count = 0;
-                                        var starsAll = <?= $summa ?>;//Всего звезд
-                                        var voteAll = <?= $voteAll ?>;//Всего голосов
                                         var idShop = <?= $product->id ?>;//id статьи
                                         var starWidth = 17;//ширина одной звезды
-                                        var ratingUser = <?= $ratingUser ?>;//старий райтинг пользователя если нет то ноль
+                                            var starsAll = <?= $summa ?>;//Всего звезд
+                                            var voteAll = <?= $voteAll ?>;//Всего голосов
+                                            var ratingUser = <?= $ratingUser ?>;//старий райтинг пользователя если нет то ноль                                     }
 
                                         var rating = (starsAll/voteAll); //Старый рейтинг
                                         rating = Math.round(rating*100)/100;
@@ -648,6 +652,11 @@
 
                     <br>
                     <button type="button" class="btn btn-link" data-toggle="collapse" data-target="#ratingContent" style="text-decoration: none">Batafsil</button>
+
+                    <?php if($voteAll == 0) {
+                        $voteAll = 1;
+                    }
+                    ?>
 
                     <section class='rating-widget collapse' id="ratingContent">
                         <div class="progress">
@@ -854,6 +863,7 @@
                 </div>
             </div>
         </div>
+@endif
     </div>
 
     <!-- Recently Viewed -->

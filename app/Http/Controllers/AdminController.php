@@ -6,6 +6,9 @@ use App\Category;
 use App\Comment;
 use App\Country;
 use App\degree_of_hazard;
+use App\Product;
+use Cviebrock\EloquentSluggable\Tests\Models\Post;
+use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Permission;
 use App\User;
 use Spatie\Permission\Models\Role;
@@ -34,7 +37,7 @@ class AdminController extends Controller
     }
     public function lists()
     {
-            $users = User::paginate(3);
+            $users = User::paginate(7);
             $permissions = Permission::get();
             $roles = Role::get();
             return view('Admin.tables', ['users' => $users, 'permissions' => $permissions, 'roles' => $roles]);
@@ -49,13 +52,80 @@ class AdminController extends Controller
         $user = User::find($id);
         return view('Admin.viewUser', ['user' => $user]);
     }
+
+
+
+    public function addNewUserPage()
+    {
+        $roles = Role::all();
+        return view('Admin.addNewUser', compact('roles'));
+    }
+
+
+    public function registerUser(Request $request)
+    {
+        Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+        $roleUser = $request->get('userByUser');
+
+        $newUser = new User();
+        $newUser->name = $request->name;
+        $newUser->email = $request->email;
+        $newUser->password = bcrypt($request->password);
+        $newUser->isAdmin = 1;
+        $newUser->parent_id = Auth::id();
+
+
+        $newUser->save();
+            if (Auth::user()->hasRole('Superadmin')){
+                $permForSuperadmin = Permission::where($roleUser, '=', 1)->get();
+            }else{
+                $permForAdmin = Permission::where('childOfAdmin', '=', 1)->get();
+            }
+            $rolesByAuth = Auth::user();
+            $roleForSuperAdmin = Role::where('name', '=', $roleUser)->select('id')->get();
+            $roleForAdmin = Role::where('name', '=', 'ChildOfAdmin')->select('id')->get();
+
+        foreach ($rolesByAuth->roles as $role) {
+            if ($role->name === 'Superadmin') {
+                $newUser->roles()->attach($roleForSuperAdmin);
+                $newUser->permissions()->attach($permForSuperadmin);
+                $newUser->update(['parent_id' => Auth::id()]);
+            }elseif($role->name === 'Admin'){
+                $newUser->roles()->attach($roleForAdmin);
+                $newUser->permissions()->attach($permForAdmin);
+                $newUser->update(['parent_id' => Auth::id()]);
+            }
+        }
+        return redirect()->route('admin.lists');
+    }
+
+
+
     public function userEdit($id)
     {
         $user = User::find($id);
         $roles = Role::get();
-        $permissions = Permission::get();
+        $rolesByAuth = Auth::user();
+        foreach ($rolesByAuth->roles as $role){
+            if($role->id == 1){
+                $where = 'Superadmin';
+            }elseif ($role->id == 2){
+                $where = 'Admin';
+            }elseif ($role->id == 3){
+                $where = 'ChildOfAdmin';
+            }elseif ($role->id == 4){
+                $where = 'User';
+            }
+            $permissions = Permission::where($where, '=', 1)->get();
+        }
         return view('Admin.editUser', ['user' => $user, 'roles' => $roles, 'permissions' => $permissions]);
     }
+
+
     public function userUpdate(Request $request)
     {
         Validator::make($request->all(), [
@@ -75,6 +145,9 @@ class AdminController extends Controller
         return json_encode($user);
     }
 
+
+
+
     public function userSearch(Request $request)
     {
         $permissions = Permission::all();
@@ -82,6 +155,8 @@ class AdminController extends Controller
         $result = User::where('name','LIKE',  '%'. $request->input('search') .'%')->orWhere('email', 'LIKE', '%'. $request->input('search') .'%')->get();
         return redirect()->route('admin.lists', ['tableUsers' =>$result]);
     }
+
+
 
     public function create()
     {
@@ -92,44 +167,88 @@ class AdminController extends Controller
         return view('Admin.add', ['categories' => $categories, 'countries' => $countries, 'degree_of_hazards' => $degree_of_hazards]);
 
     }
+
+
+
     public function attachPermission(User $user, Permission $permission)
     {
         $user->permissions()->attach($permission);
         return back();
     }
+
+
+
     public function detachPermission(User $user, Permission $permission)
     {
         $user->permissions()->detach($permission);
         return back();
     }
+
+
+
     public function attachRole(User $user, Role $role)
     {
         $user->roles()->attach($role);
         return back();
     }
+
+
+
     public function detachRole(User $user, Role $role)
     {
         $user->roles()->detach($role);
         return back();
     }
+
+
+
     public function addRolePage()
     {
         $roles = Role::get();
         return view('Admin.roles', compact(['roles']));
     }
+
+
+
     public function RoleToPermission(Role $role)
     {
         $permissions = Permission::get();
         return view('Admin.roleToPermission', compact(['role', 'permissions']));
     }
+
+
+
     public function attachPermissionToRole(Role $role, Permission $permission)
     {
-        $role->permissions()->attach($permission);
+        $role->givePermissionTo($permission);
         return back();
     }
+
+
+
     public function detachPermissionFromRole(Role $role, Permission $permission)
     {
-        $role->permissions()->detach($permission);
+        $role->revokePermissionTo($permission);
         return back();
     }
+
+
+    public function productsPage()
+    {
+        $rolesByAuth = Auth::user();
+            $products = Product::all();
+        return view('Admin.products', compact('products'));
+    }
+
+
+
+
+    public function productStatus(Request $request)
+    {
+        $product = Product::where('id', '=', $request->productId)->update([
+            'status' => $request->status,
+        ]);
+        return $request->status;
+    }
+
 }

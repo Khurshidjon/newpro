@@ -169,6 +169,7 @@ class ProductController extends Controller
         $summa = Rate::where('product_id', '=', $product->id)->sum('rates');
         $rating = round($summa/$count,1);
         $voteAll = Rate::where('product_id', '=', $product->id)->count('rates');
+
         return view('user.show', ['product' => $product, 'comments' => $comments, 'rate5' => $rate5, 'rate4'=>$rate4, 'rate3'=>$rate3, 'rate2'=> $rate2, 'rate1'=>$rate1, 'summa'=>$summa, 'count'=>$count, 'rating' => $rating, 'rates' => $rates, 'voteAll' => $voteAll, 'ratingUser' => $ratingUser]);
     }
 

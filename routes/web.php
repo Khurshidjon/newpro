@@ -24,10 +24,13 @@ Route::get('/product/comment/{product}', 'ProductController@comments')->name('sh
 
 Route::get('/admin/login', 'AdminController@loginAdmin')->name('admin.login');
 
-Route::middleware(['admins'])->group(function () {
+Route::middleware(['admins', 'auth'])->group(function () {
     Route::get('/admin/dashboard', 'AdminController@isAdmin')->name('admin.index');
     Route::get('/adminka/add/product/page', 'AdminController@create')->name('admin.createPage');
     Route::get('/admin/add/role/page', 'AdminController@addRolePage')->name('admin.addRolePage');
+
+    Route::get('/admin/products/page', 'AdminController@productsPage')->name('admin.productPage');
+
     Route::get('/admin/add/role/permission/{role}', 'AdminController@RoleToPermission')->name('admin.roleToPermission');
     Route::get('/adminka/lists', 'AdminController@lists')->name('admin.lists')/*->middleware('can:lists', \App\User::class)*/;
     Route::get('/adminka/users/lists', 'AdminController@usersList')->name('users.list');
@@ -40,8 +43,12 @@ Route::middleware(['admins'])->group(function () {
     Route::post('/adminka/attach/role/{user}/{role}', 'AdminController@attachRole')->name('admin.attachRole');
     Route::post('/adminka/detach/role/{user}/{role}', 'AdminController@detachRole')->name('admin.detachRole');
 
-    Route::post('/adminka/attach/permission/{role}/{permission}', 'AdminController@attachPermissionToRole')->name('admin.attachPermissionToRole');
-    Route::post('/adminka/detach/permission/{role}/{permission}', 'AdminController@detachPermissionFromRole')->name('admin.detachPermissionFromRole');
+    Route::post('/admin/attach/permission/{role}/{permission}', 'AdminController@attachPermissionToRole')->name('admin.attachPermissionToRole');
+    Route::post('/admin/detach/permission/{role}/{permission}', 'AdminController@detachPermissionFromRole')->name('admin.detachPermissionFromRole');
+
+    Route::get('/admin/product/status', 'AdminController@productStatus')->name('product.status');
+    Route::get('/admin/add/newUser', 'AdminController@addNewUserPage')->name('admin.newUserPage');
+    Route::post('/admin/add/newUser', 'AdminController@registerUser')->name('admin.registerUser');
 });
 
 Auth::routes();

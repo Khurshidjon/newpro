@@ -1,1 +1,0 @@
-Kirishga ruhsat yoq
