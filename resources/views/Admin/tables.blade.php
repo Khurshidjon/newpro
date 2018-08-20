@@ -5,7 +5,6 @@
 
     <!-- Navigation -->
     @include('Admin.topNavbar')
-
     <div id="page-wrapper">
         <div class="row">
             <div class="col-lg-12">
@@ -26,7 +25,6 @@
         </ul>
         <div class="tab-content">
             <div id="home" class="tab-pane active"><br>
-
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         Users
@@ -51,34 +49,33 @@
                                 <tbody id="usersList">
                                 <?php $i = 0; ?>
                                      @foreach($users as $user)
-                                         @if(Auth::user()->id == $user->parent_id || Auth::user()->hasRole('Superadmin') || Auth::user()->hasRole('Admin'))
-                                         <tr>
-                                             <td>{{ ++$i }}</td>
-                                             <td>{{ $user->name }}</td>
-                                             <td>{{ $user->email }}</td>
-                                             <td>
+                                             @if(Auth::user()->id == $user->parent_id || Auth::user()->hasRole('Superadmin'))
+                                             <tr>
+                                                 <td>{{ ++$i }}</td>
+                                                 <td>{{ $user->name }}</td>
+                                                 <td>{{ $user->email }}</td>
+                                                 <td>
                                                      @foreach($user->roles as $role)
-                                                         <label class="badge badge-success" style="background-color: forestgreen">{{ $role->name }}</label>
+                                                        <label class="badge badge-success" style="background-color: forestgreen">{{ $role->name }}</label>
                                                      @endforeach
-                                             </td>
-                                             <td>
-
-                                                 <form action="" class="d-block">
-                                                     @if(Auth::user()->can('user-list'))
-                                                         <a class="btn btn-info" href="{{ route('user.show', [$user]) }}">Show</a>
-                                                     @endif
-                                                     @can('user-edit')
-                                                         <a class="btn btn-primary" href="{{ route('user.edit', [$user])}}">Edit</a>
-                                                     @endcan
-                                                     @if(Auth::user()->hasRole('Superadmin'))
-                                                         @can('user-delete')
-                                                            <button class="btn btn-danger">Delete</button>
+                                                 </td>
+                                                 <td class="d-block">
+                                                         {{--@can('user-list')--}}
+                                                             {{--<a class="btn btn-info" href="{{ route('user.show', [$user]) }}">Show</a>--}}
+                                                         {{--@endcan--}}
+                                                     <form action="{{ route('admin.userDelete', [$user]) }}" method="post">
+                                                         {{ csrf_field() }}
+                                                         @method('DELETE')
+                                                         @can('user-edit')
+                                                                 <a class="btn btn-primary" href="{{ route('user.edit', [$user])}}">Edit</a>
                                                          @endcan
-                                                     @endif
-                                                 </form>
-                                             </td>
-                                         </tr>
-                                         @endif
+                                                         @can('user-delete')
+                                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                                         @endcan
+                                                     </form>
+                                                 </td>
+                                             </tr>
+                                             @endif
                                      @endforeach
 
                                 </tbody>
@@ -87,7 +84,6 @@
                         </div>
                     </div>
                 </div>
-
             </div>
 <div id="menu1" class="container tab-pane fade"><br>
 

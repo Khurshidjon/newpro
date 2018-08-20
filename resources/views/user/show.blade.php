@@ -763,26 +763,27 @@
                     </div>
                 </div>
             </div>
-            <div class="w-75" >
-                <h2>Comments</h2>
-                <div class="card" id="comments">
-                    <hr>
-                </div>
+            <div class="row" >
+                <div class="col-lg-6 col-sm-12">
+                    <h2>Comments</h2>
+                    <div class="card" id="comments">
+                        <hr>
+                    </div>
                     <div class="card-footer">
                         @if(Auth::check())
-                        <form action="{{route('product.comment', ['product' => $product])}}" method="post">
-                            {{ csrf_field() }}
-                            <div class="form-group">
-                                <label for="comment"></label>
-                                <textarea id="comment" name="comment" class="form-control {{ $errors->has('comment') ? ' is-invalid' : '' }}" rows="5" placeholder="mahsulot haqida fikringiz"></textarea>
-                                @if ($errors->has('comment'))
-                                    <span class="invalid-feedback" role="alert">
+                            <form action="{{route('product.comment', ['product' => $product])}}" method="post">
+                                {{ csrf_field() }}
+                                <div class="form-group">
+                                    <label for="comment"></label>
+                                    <textarea id="comment" name="comment" class="form-control {{ $errors->has('comment') ? ' is-invalid' : '' }}" rows="5" placeholder="mahsulot haqida fikringiz"></textarea>
+                                    @if ($errors->has('comment'))
+                                        <span class="invalid-feedback" role="alert">
                                         <strong>{{ $errors->first('comment') }}</strong>
                                     </span>
-                                @endif
-                            </div>
-                            <button type="submit" id="addComment" class="btn btn-outline">Send</button>
-                        </form>
+                                    @endif
+                                </div>
+                                <button type="submit" id="addComment" class="btn btn-outline">Send</button>
+                            </form>
 
                         @else
                             <div class="card-footer">
@@ -808,7 +809,6 @@
                                             page: page,
                                         },
                                         success: function (data) {
-                                            console.log(data)
                                             writeData(data);
                                         },
                                     });
@@ -818,21 +818,29 @@
                                     var user = '';
                                     $.each(data, function (key, value) {
                                         if(value.product_id == '<?php echo $product->id;?>'){
-                                                user = user + "<div class='card'>";
-                                                user = user + "<div class='card-body'><h5>" + value.name + "</h5><hr></div>";
-                                                user = user + "<div class='card-body'><p>" + value.comments + '</p></div>';
-                                                user = user + '<div class="card-footer"><span class="float-right text-info">' + value.created_at + '</span></div>';
-                                                user = user + "</div>";
-                                                $('#comments').html(user);
+                                            user = user + "<div class='card'>";
+                                            user = user + "<div class='card-body'><h5><i class='fa fa-user-circle-o' style='font-size: 20px'> </i>  " + value.name + "</h5><hr></div>";
+                                            user = user + "<div class='card-body' style=''>";
+                                            user = user +  '<p>'+ value.comments + '</p>';
+                                            user = user +  '<p style="margin-left: 30px; font-size: 12px; line-height: 2px"><i class="fa fa-user-circle-o" style="font-size: 15px"></i> <b> Comment user</b></p>';
+                                            user = user +  '<p style="margin-left: 30px; font-size: 12px; line-height: 3px">here you can write subcomment</p>';
+                                            user = user +  '<p style="margin-left: 120px; font-size: 11px;">subcomment time</p>';
+                                            if('{{Auth::check()}}'){
+                                                user = user + "<input type='text' name='subComment' placeholder='javob yozish' class='form-control col-lg-6 col-sm-10 ml-lg-5' style='border-radius: 20px; font-size: 12px'>";
                                             }
+                                            user = user + "</div><hr>";
+                                            user = user + '<div class="card-footer"><span class="float-right text-info">' + value.created_at + '</span></div>';
+                                            user = user + "</div>";
+                                            $('#comments').html(user);
+                                        }
                                     });
                                 }
 
                                 $('#addComment').on('click', function(event){
                                     event.preventDefault();
 
-                                     var value = $('#comment').val();
-                                     var commentUrl = '<?php echo route('product.comment', [$product])?>';
+                                    var value = $('#comment').val();
+                                    var commentUrl = '<?php echo route('product.comment', [$product])?>';
                                     $.ajaxSetup({
                                         headers: {
                                             'X-CSRF-TOKEN': $("meta[name='csrf-token']").attr('content')
@@ -853,7 +861,6 @@
                                             $('#comment').val('');
                                             $('#comments').load(commentUrl);
                                             getDataInfo();
-                                            console.log()
                                         }
                                     });
                                 });
@@ -861,6 +868,7 @@
                         </script>
                     </div>
                 </div>
+            </div>
             </div>
         </div>
 @endif

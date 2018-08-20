@@ -9,8 +9,37 @@
         <a class="navbar-brand" href="{{ route('admin.index') }}">Admin: {{Auth::user()->name}}</a>
     </div>
     <!-- /.navbar-header -->
+    <div>
+        @if(session('message'))
+            <div class="alert alert-danger" id="id">
+                {{session('message')}}
+            </div>
+        @endif
+        <script>
+            $('#id').delay(5000).fadeOut('fast');
+        </script>
 
+    </div>
     <ul class="nav navbar-top-links navbar-right">
+        <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                <i class="fa fa-language fa-fw"></i> <i class="fa fa-caret-down"></i>
+            </a>
+            <ul class="dropdown-menu">
+                <li>
+                    <a href="{{route('locale', ['lang' => 'ru'])}}">@lang('pages.languageRu')</a>
+                </li>
+                <li class="divider"></li>
+                <li>
+                    <a href="{{route('locale', ['lang' => 'uz'])}}">@lang('pages.languageUz')</a>
+                </li>
+                <li class="divider"></li>
+                <li>
+                    <a href="{{route('locale', ['lang', 'en'])}}">@lang('pages.languageEn')</a>
+                </li>
+            </ul>
+            <!-- /.dropdown-tasks -->
+        </li>
         <li class="dropdown">
             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                 <i class="fa fa-envelope fa-fw"></i> <i class="fa fa-caret-down"></i>

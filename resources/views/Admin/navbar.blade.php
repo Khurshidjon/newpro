@@ -19,12 +19,10 @@
                 <a href="#"><i class="fa fa-bar-chart-o fa-fw"></i> Charts<span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
                     <li>
-                        @if(Auth::user()->hasRole('Superadmin'))
                             <a href="{{ route('admin.addRolePage') }}">Role</a>
-                        @endif
                     </li>
                     <li>
-                        <a href="morris.html">Morris.js Charts</a>
+                        <a href="{{ route('admin.addRoleToPermission') }}">Add Role to Permission</a>
                     </li>
                 </ul>
                 <!-- /.nav-second-level -->

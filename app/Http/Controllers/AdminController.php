@@ -24,6 +24,7 @@ class AdminController extends Controller
     public function __construct(User $user)
     {
         $this->user = $user;
+        $this->middleware('superadmin')->only(['attachPermissionToRole', 'detachPermissionFromRole', 'permissionStatus']);
     }
     public function isAdmin()
     {
@@ -42,14 +43,11 @@ class AdminController extends Controller
             $roles = Role::get();
             return view('Admin.tables', ['users' => $users, 'permissions' => $permissions, 'roles' => $roles]);
     }
-    public function usersList()
-    {
-     //
-    }
+
     public function userShow($id)
     {
-/*        $this->authorize('view', User::class);*/
         $user = User::find($id);
+
         return view('Admin.viewUser', ['user' => $user]);
     }
 
@@ -68,6 +66,7 @@ class AdminController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6|confirmed',
+            'userByUser' => 'required',
         ]);
         $roleUser = $request->get('userByUser');
 
@@ -107,10 +106,9 @@ class AdminController extends Controller
 
     public function userEdit($id)
     {
-        $user = User::find($id);
+        $rolesByUser = User::find($id);
         $roles = Role::get();
-        $rolesByAuth = Auth::user();
-        foreach ($rolesByAuth->roles as $role){
+        foreach ($rolesByUser->roles as $role){
             if($role->id == 1){
                 $where = 'Superadmin';
             }elseif ($role->id == 2){
@@ -122,7 +120,7 @@ class AdminController extends Controller
             }
             $permissions = Permission::where($where, '=', 1)->get();
         }
-        return view('Admin.editUser', ['user' => $user, 'roles' => $roles, 'permissions' => $permissions]);
+        return view('Admin.editUser', ['user' => $rolesByUser, 'roles' => $roles, 'permissions' => $permissions]);
     }
 
 
@@ -249,6 +247,48 @@ class AdminController extends Controller
             'status' => $request->status,
         ]);
         return $request->status;
+    }
+
+    public function addRoleToPermission()
+    {
+        $permissions = Permission::all();
+        return view('Admin.permissionHasRole', compact('permissions'));
+    }
+
+    public function permissionStatus(Request $request)
+    {
+        if(isset($request->status1)){
+            Permission::where('id', '=', $request->permissionId)->update([
+                'Superadmin' => $request->status1
+            ]);
+        }elseif (isset($request->status2)){
+            Permission::where('id', '=', $request->permissionId)->update([
+                'Admin' => $request->status2
+            ]);
+        }elseif (isset($request->status3)){
+            Permission::where('id', '=', $request->permissionId)->update([
+                'childOfAdmin' => $request->status3
+            ]);
+        }elseif (isset($request->status4)){
+            Permission::where('id', '=', $request->permissionId)->update([
+                'user' => $request->status4
+            ]);
+        }
+        return 'success';
+    }
+
+    public function userUserDelete(User $user)
+    {
+        $user->delete();
+
+        foreach ($user->permissions() as $permission){
+            $user->permissions()->detach($permission);
+        }
+        foreach ($user->roles() as $role){
+            $user->roles()->detach($role);
+        }
+
+        return back()->with('message', 'User deleted successfully');
     }
 
 }

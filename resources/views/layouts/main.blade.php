@@ -33,8 +33,8 @@
             <div class="container">
                 <div class="row">
                     <div class="col d-flex flex-row">
-                        <div class="top_bar_contact_item"><div class="top_bar_icon"><img src="images/phone.png" alt=""></div>+38 068 005 3570</div>
-                        <div class="top_bar_contact_item"><div class="top_bar_icon"><img src="images/mail.png" alt=""></div><a href="mailto:fastsales@gmail.com">fastsales@gmail.com</a></div>
+                        <div class="top_bar_contact_item"><div class="top_bar_icon"><img src="{{asset('images/phone.png')}}i" alt=""></div>+38 068 005 3570</div>
+                        <div class="top_bar_contact_item"><div class="top_bar_icon"><img src="{{asset('images/mail.png')}}" alt=""></div><a href="mailto:fastsales@gmail.com">fastsales@gmail.com</a></div>
                         <div class="top_bar_content ml-auto">
                             <div class="top_bar_menu">
                                 <ul class="standard_dropdown top_bar_dropdown">
@@ -47,6 +47,25 @@
                                             <li><a href="#">Spanish</a></li>
                                             <li><a href="#">Japanese</a></li>
                                         </ul>
+                                    </li>
+                                    <li class="dropdown">
+                                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                            <i class="fa fa-language fa-fw"></i> <i class="fa fa-caret-down"></i>
+                                        </a>
+                                        <ul class="dropdown-menu">
+                                            <li>
+                                                <a href="{{route('locale', ['locale' => 'ru'])}}">@lang('pages.languageRu')</a>
+                                            </li>
+                                            <li class="divider"></li>
+                                            <li>
+                                                <a href="{{route('locale', ['locale' => 'uz'])}}">@lang('pages.languageUz')</a>
+                                            </li>
+                                            <li class="divider"></li>
+                                            <li>
+                                                <a href="{{route('locale', ['locale', 'en'])}}">@lang('pages.languageEn')</a>
+                                            </li>
+                                        </ul>
+                                        <!-- /.dropdown-tasks -->
                                     </li>
                                     <li>
                                         <a href="#">$ US dollar<i class="fas fa-chevron-down"></i></a>

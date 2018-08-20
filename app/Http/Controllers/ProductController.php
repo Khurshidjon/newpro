@@ -33,7 +33,7 @@ class ProductController extends Controller
     {
         $products = Product::latest()->paginate(20);
         $categories = Category::all();
-        $randoms = Product::where('slug', '!=', $products)->get()->random(1);
+        $randoms = Product::where('slug', '!=', $products)->get()->random(0);
         $news = Product::latest()->paginate(6);
         return view('user.index', ['products' => $products, 'randoms' => $randoms, 'news' => $news, 'categories' => $categories]);
     }
@@ -142,7 +142,7 @@ class ProductController extends Controller
         $product->update([
             'views' => $i = $i + 1,
         ]);
-        $comments = Comment::all();
+
         $rates = Rate::all();
         $count = count($rates);
 
@@ -170,7 +170,7 @@ class ProductController extends Controller
         $rating = round($summa/$count,1);
         $voteAll = Rate::where('product_id', '=', $product->id)->count('rates');
 
-        return view('user.show', ['product' => $product, 'comments' => $comments, 'rate5' => $rate5, 'rate4'=>$rate4, 'rate3'=>$rate3, 'rate2'=> $rate2, 'rate1'=>$rate1, 'summa'=>$summa, 'count'=>$count, 'rating' => $rating, 'rates' => $rates, 'voteAll' => $voteAll, 'ratingUser' => $ratingUser]);
+        return view('user.show', ['product' => $product, 'rate5' => $rate5, 'rate4'=>$rate4, 'rate3'=>$rate3, 'rate2'=> $rate2, 'rate1'=>$rate1, 'summa'=>$summa, 'count'=>$count, 'rating' => $rating, 'rates' => $rates, 'voteAll' => $voteAll, 'ratingUser' => $ratingUser]);
     }
 
     /**
@@ -221,7 +221,7 @@ class ProductController extends Controller
     /*Comments read*/
     public function comments()
     {
-        $comments = DB::table('comments')->join('users', 'comments.user_id', '=', 'users.id')->select('comments', 'product_id', 'comments.created_at', 'users.name')->get();
+        $comments = DB::table('comments')->orderBy('created_at', 'asc')->join('users', 'comments.user_id', '=', 'users.id')->select('comments', 'product_id', 'comments.created_at', 'users.name')->get();
 
         return response()->json($comments);
     }

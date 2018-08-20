@@ -6,8 +6,9 @@
 
         <div id="page-wrapper">
             <div class="tab-content" style="position:relative; margin-left: 20%">
-                <div class="container align-items-center">
-                    <form action="{{route('admin.registerUser')}}" method="post" class="text-center" style="position: fixed; margin-top: 8em">
+                <div class="align-items-center">
+                    @if(Auth::user()->hasRole('Superadmin') || Auth::user()->hasRole('Admin'))
+                        <form action="{{route('admin.registerUser')}}" method="post" class="text-center" style="position: fixed; margin-top: 8em">
                         {{ csrf_field() }}
                         <i class="fa fa-user" style="font-size: 10em; color: gray()"></i>
                         <div class="row">
@@ -57,7 +58,7 @@
                         @if(Auth::user()->hasRole('Superadmin'))
                         <div class="form-group">
                             <label for="userByUser"></label>
-                            <select id="userByUser" name="userByUser" class="form-control {{ $errors->has('userByUser') ? ' is-invalid' : '' }}">
+                            <select id="userByUser" name="userByUser" class="form-control {{ $errors->has('userByUser') ? ' is-invalid' : '' }}" required>
                                 <option value="" selected disabled>--select once--</option>
                                 @foreach($roles as $role)
                                     <option value="{{$role->name}}">{{ $role->name }}</option>
@@ -73,6 +74,7 @@
                         <button type="submit" class="btn btn-block btn-outline-dark">Register</button>
 
                     </form>
+                    @endif
                 </div>
             </div>
         </div>

@@ -5,8 +5,7 @@
 
         <!-- Navigation -->
         @include('Admin.topNavbar')
-
-        <div id="page-wrapper">
+            <div id="page-wrapper">
             <div class="row">
                 <div class="col-lg-12">
                     <h1 class="page-header">Tables</h1>
@@ -43,7 +42,7 @@
                                     <tbody id="usersList">
                                         <?php $f = 0; ?>
                                         @foreach($products as $product)
-                                            @if(Auth::id() == $product->user_id || Auth::user()->hasRole('Superadmin') || Auth::user()->hasRole('Admin'))
+                                            @if(Auth::id() == $product->user_id || Auth::user()->hasRole('Superadmin') || Auth::id() == $product->user->parent_id)
                                                 <tr>
                                                 <td>{{ ++$f }}</td>
                                                 <td style="background-color: darkgrey">{{ $product->user->name }}</td>
@@ -54,10 +53,18 @@
                                                 <td>{{ $product->country->countries}}</td>
                                                 <td>
                                                     <form action="" id="publish">
-                                                        @if($product->status == 0)
-                                                            <input id="id_{{$product->id}}" data-id="{{$product->id}}" class="form-control" type="checkbox" data-toggle="toggle" data-style="ios" data-on="Pulbished" data-off="Unpublished" data-size="mini" data-onstyle="success" data-offstyle="danger">
+                                                        @if(Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Superadmin'))
+                                                            @if($product->status == 0)
+                                                                <input id="id_{{$product->id}}" data-id="{{$product->id}}" class="form-control" type="checkbox" data-toggle="toggle" data-style="ios" data-on="Pulbished" data-off="Unpublished" data-size="mini" data-onstyle="success" data-offstyle="danger">
+                                                            @else
+                                                                <input id="id_{{$product->id}}" data-id="{{$product->id}}"  class="form-control" type="checkbox" data-toggle="toggle" data-style="ios" data-on="Pulbished" data-off="Unpublished" data-size="mini" data-onstyle="success" data-offstyle="danger" checked>
+                                                            @endif
                                                         @else
-                                                            <input id="id_{{$product->id}}" data-id="{{$product->id}}"  class="form-control" type="checkbox" data-toggle="toggle" data-style="ios" data-on="Pulbished" data-off="Unpublished" data-size="mini" data-onstyle="success" data-offstyle="danger" checked>
+                                                            @if($product->status == 0)
+                                                                <input id="id_{{$product->id}}" data-id="{{$product->id}}" class="form-control" type="checkbox" data-toggle="toggle" data-style="ios" data-on="Pulbished" data-off="Unpublished" data-size="mini" data-onstyle="success" data-offstyle="danger" disabled="">
+                                                            @else
+                                                                <input id="id_{{$product->id}}" data-id="{{$product->id}}"  class="form-control" type="checkbox" data-toggle="toggle" data-style="ios" data-on="Pulbished" data-off="Unpublished" data-size="mini" data-onstyle="success" data-offstyle="danger" checked disabled>
+                                                            @endif
                                                         @endif
                                                     </form>
                                                     <script>

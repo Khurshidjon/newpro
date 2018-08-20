@@ -1,3 +1,8 @@
+<?php
+//    if(empty($randoms)){
+//        return redirect()->route('create.product');
+//    }
+//?>
 @extends('layouts.main')
 @section('content')
     <!-- Banner -->

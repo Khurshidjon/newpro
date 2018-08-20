@@ -19,7 +19,7 @@
                             Basic Form Elements
                         </div>
                         <div class="panel-body">
-                            <div class="container w-75">
+                            <div class=" w-75">
                                 <h2 class="text-info">{{ $role->name }}</h2>
                                 <div class="row">
                                     <div class="col-md-6">
@@ -27,7 +27,7 @@
                                             <table class="table">
                                                 <thead>
                                                 <tr>
-                                                    <th>Has Roles</th>
+                                                    <th>Has Permission</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody>
@@ -53,7 +53,7 @@
                                             <table class="table">
                                                 <thead>
                                                 <tr>
-                                                    <th>Nope Roles</th>
+                                                    <th>Nope Permission</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody>

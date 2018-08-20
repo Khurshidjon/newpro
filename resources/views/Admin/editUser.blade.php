@@ -9,7 +9,7 @@
         @include('Admin.topNavbar')
         <div id="page-wrapper">
             <div class="tab-content">
-                <div class="container mt-5">
+                <div class="container-fluid">
                     <div class="row" style="margin-top: 80px; padding-top: 50px">
                         <div class="col-lg-6">
                             <input class="form-control" value="{{ $user->name }}" disabled="">
@@ -65,6 +65,7 @@
                             </div>
                             </div>
                         </div>
+                        @if(Auth::user()->hasRole('Superadmin'))
                         <div class="col-lg-3">
                             <table class="table table-borderless">
                                 <thead>
@@ -113,6 +114,7 @@
                                 </tbody>
                             </table>
                         </div>
+                        @endif
                     </div>
                 </div>
             </div>

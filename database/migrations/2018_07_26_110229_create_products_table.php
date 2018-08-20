@@ -30,6 +30,7 @@ class CreateProductsTable extends Migration
             $table->unsignedInteger('category_id');
             $table->unsignedInteger('user_id');
             $table->unsignedInteger('degree_of_hazard_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }
